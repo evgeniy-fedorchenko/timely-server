@@ -28,8 +28,6 @@ public class AuthController {
 
     @PostMapping(path = "/login")
     public Mono<AuthResponse> login(@RequestBody @NonNull AuthRequest authRequest) {
-        return authService.authorise(authRequest)
-                .map(uuid -> new AuthResponse(uuid, AuthStatus.SUCCESS))
-                .defaultIfEmpty(new AuthResponse(null, AuthStatus.FAIL));
+        return authService.authorise(authRequest);
     }
 }
