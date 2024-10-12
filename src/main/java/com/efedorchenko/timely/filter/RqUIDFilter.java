@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.annotation.NonNull;
 
 @Component
-public class MdcFilter implements WebFilter {
+public class RqUIDFilter implements WebFilter {
 
     public static final String RQUID = "RqUID";
 

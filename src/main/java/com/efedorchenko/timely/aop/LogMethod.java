@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.aop;
 
-import com.efedorchenko.timely.filter.MdcFilter;
+import com.efedorchenko.timely.filter.RqUIDFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -30,7 +30,7 @@ public class LogMethod {
         try {
 
             return Mono.deferContextual(contextView -> {
-                String rquid = contextView.getOrDefault(MdcFilter.RQUID, "NO_RqUID");
+                String rquid = contextView.getOrDefault(RqUIDFilter.RQUID, "NO_RqUID");
                 Marker rquidMarker = MarkerFactory.getMarker(rquid);
 
                 Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
