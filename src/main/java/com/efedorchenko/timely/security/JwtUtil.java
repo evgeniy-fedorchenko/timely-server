@@ -65,7 +65,7 @@ public class JwtUtil {
             Claims body = jws.getPayload();
 
             String userId = body.getSubject();
-            List<String> roles = body.get(ROLES_KEY, List.class);
+            List<String> roles = body.get(ROLES_KEY, List.class); // FIXME 27.10.2024 02:49
 
             Collection<? extends GrantedAuthority> authorities = roles == null
                     ? Collections.emptyList()
