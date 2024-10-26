@@ -2,21 +2,16 @@ package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.configuration.JwtProperties;
 import com.efedorchenko.timely.model.JwtTokenData;
-import com.efedorchenko.timely.model.RegisterRequest;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -38,20 +33,6 @@ public class JwtUtil {
     private static final String ROLES_KEY = "roles";
 
     private final JwtProperties properties;
-
-    public @NotNull String generateToken(String userId, String fullName, String email, List<String> roles) {
-        Date now = new Date();
-
-        return Jwts.builder()
-                .subject(userId)
-                .claim(ROLES_KEY, roles)
-                .claim(FULLNAME_KEY, fullName)
-                .claim(EMAIL_KEY, email)
-                .signWith(getKey())
-                .issuedAt(now)
-                .expiration(new Date(now.getTime() + properties.getExpirationMillis()))
-                .compact();
-    }
 
     public String generateToken(JwtTokenData tokenData) {
         Date now = new Date();
