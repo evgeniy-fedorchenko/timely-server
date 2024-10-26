@@ -1,6 +1,11 @@
 package com.efedorchenko.timely.entity;
 
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
@@ -14,6 +19,7 @@ import reactor.util.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,7 +41,7 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
     private String password;
 
     @Nullable
-    private String authorities;
+    private String authorities; // FIXME 27.10.2024 02:43: переделать на связь с др таблицей
 
     @Transient
     private boolean isNew = true;
@@ -54,13 +60,7 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        if (authorities == null) {
-            this.authorities = null;
-        } else {
-            this.authorities = authorities.stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.joining());
-        }
+    public void setAuthorities(@NotNull List<String> authorities) {
+        this.authorities = String.join(",", authorities);
     }
 }

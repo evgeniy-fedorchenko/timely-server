@@ -8,9 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
+import java.util.List;
 
 @Getter
 @ToString
@@ -25,7 +24,7 @@ public class RegisterRequest {
     private final String password;
 
     @NotNull
-    private final Collection<SimpleGrantedAuthority> authorities;
+    private final List<String> authorities;
 
     @NotNull
     @Size(max = 128)

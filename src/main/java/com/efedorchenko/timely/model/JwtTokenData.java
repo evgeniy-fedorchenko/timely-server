@@ -2,9 +2,8 @@ package com.efedorchenko.timely.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -13,7 +12,7 @@ public class JwtTokenData {
 
     private final UUID userId;
 
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final List<String> authorities;
 
     private final String fullName;
 
