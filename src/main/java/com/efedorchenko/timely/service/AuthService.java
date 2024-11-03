@@ -1,14 +1,16 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.model.AuthRequest;
-import com.efedorchenko.timely.model.AuthResponse;
-import com.efedorchenko.timely.model.JwtTokenData;
-import com.efedorchenko.timely.model.RegisterRequest;
+import com.efedorchenko.timely.model.auth.JwtTokenData;
+import com.efedorchenko.timely.model.auth.RegisterRequest;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 public interface AuthService {
 
-    Mono<AuthResponse> authorise(AuthRequest authRequest);
-
     Mono<JwtTokenData> register(RegisterRequest registerRequest);
+
+    Mono<JwtTokenData> login(UUID userId);
+
+    Mono<Void> logout();
 }
