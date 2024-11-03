@@ -37,8 +37,9 @@ public class JwtAuthenticationWebFilter implements WebFilter {
                 .flatMap(rawToken -> {
                     try {
                         JwtUtil.RawAuthenticationData rawAuthData = jwtUtil.parseToken(rawToken);
-                        AuthenticationToken authenticationToken =
-                                AuthenticationToken.authenticate(rawAuthData.getAuthorities(), rawAuthData.getUserId());
+                        AuthenticationToken authenticationToken = AuthenticationToken.authenticate(
+                                rawAuthData.getAuthorities(), UUID.fromString(rawAuthData.getUserId())
+                        );
 
                         return chain.filter(exchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticationToken));

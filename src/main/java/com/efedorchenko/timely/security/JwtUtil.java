@@ -3,7 +3,6 @@ package com.efedorchenko.timely.security;
 import com.efedorchenko.timely.configuration.JwtProperties;
 import com.efedorchenko.timely.model.JwtTokenData;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    private static final String FULLNAME_KEY = "fullName";
     private static final String EMAIL_KEY = "email";
     private static final String ROLES_KEY = "roles";
 
@@ -40,42 +38,45 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(tokenData.getUserId().toString())
                 .claim(ROLES_KEY, tokenData.getAuthorities())
-                .claim(FULLNAME_KEY, tokenData.getFullName())
                 .claim(EMAIL_KEY, tokenData.getEmail())
                 .signWith(getKey())
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + properties.getExpirationMillis()))
+//                .expiration(new Date(now.getTime() + properties.getExpirationMillis()))
                 .compact();
     }
 
     public RawAuthenticationData parseToken(String rawToken) throws AuthException {
         try {
-            SecretKey key = getKey();
 
-            Jws<Claims> jws = Jwts.parser()
-                    .verifyWith(key)
+            Claims body = Jwts.parser()
+                    .verifyWith(getKey())
                     .build()
-                    .parseSignedClaims(rawToken);
+                    .parseSignedClaims(rawToken)
+                    .getPayload();
 
-            Date expiration = jws.getPayload().getExpiration();
-            if (expiration.before(new Date())) {
-                throw new AuthException("Expired JWT token");
-            }
+//            Date expiration = jws.getPayload().getExpiration();
+//            if (expiration.before(new Date())) {
+//                throw new AuthException("Expired JWT token");
+//            }
 
-            Claims body = jws.getPayload();
-
-            String userId = body.getSubject();
-            List<String> roles = body.get(ROLES_KEY, List.class); // FIXME 27.10.2024 02:49
-
-            Collection<? extends GrantedAuthority> authorities = roles == null
+            Collection<String> roles = extractRoles(body.get(ROLES_KEY, List.class));
+            Collection<? extends GrantedAuthority> authorities = roles.isEmpty()
                     ? Collections.emptyList()
                     : roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
-            return new RawAuthenticationData(authorities, userId);
+            return new RawAuthenticationData(authorities, body.getSubject());
 
         } catch (JwtException | IllegalArgumentException e) {
             throw new AuthException("Invalid JWT token", e);
         }
+    }
+
+    @NotNull
+    private Collection<String> extractRoles(Object body) {
+        if (body instanceof Collection<?> collection && !collection.isEmpty()) {
+            return collection.stream().map(Object::toString).toList();
+        }
+        return Collections.emptyList();
     }
 
     @NotNull
@@ -84,7 +85,7 @@ public class JwtUtil {
     }
 
     @Getter
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class RawAuthenticationData {
 
         private final Collection<? extends GrantedAuthority> authorities;
