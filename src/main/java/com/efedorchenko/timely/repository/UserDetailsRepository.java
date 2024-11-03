@@ -5,7 +5,9 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import reactor.core.publisher.Mono;
 
-public interface UserDetailsRepository extends R2dbcRepository<UserDetailsImpl, Long> {
+import java.util.UUID;
+
+public interface UserDetailsRepository extends R2dbcRepository<UserDetailsImpl, UUID> {
 
     Mono<UserDetails> findByUsername(String username);
 
