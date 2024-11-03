@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,7 +15,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.NonNull;
 
-import java.util.Collections;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationWebFilter implements WebFilter {
@@ -43,16 +41,17 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
                         return chain.filter(exchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authenticationToken));
-                    } catch (AuthenticationException ae) {
+                    } catch (AuthException ae) {
                         return Mono.error(ae);
                     }
                 })
 
                 .onErrorResume(ex -> {
-                    exchange.getResponse().setStatusCode(
-                            ex instanceof AuthException ? HttpStatus.UNAUTHORIZED : HttpStatus.INTERNAL_SERVER_ERROR
-                    );
-                    return exchange.getResponse().setComplete();
+                    if (ex instanceof AuthException) {
+                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return exchange.getResponse().setComplete();
+                    }
+                    return Mono.error(ex);
                 });
     }
 
