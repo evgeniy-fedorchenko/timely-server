@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.configuration.JwtProperties;
-import com.efedorchenko.timely.model.JwtTokenData;
+import com.efedorchenko.timely.model.auth.JwtTokenData;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

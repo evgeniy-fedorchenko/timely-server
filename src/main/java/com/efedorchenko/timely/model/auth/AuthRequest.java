@@ -1,7 +1,10 @@
-package com.efedorchenko.timely.model;
+package com.efedorchenko.timely.model.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
+import lombok.ToString;
 
 @Data
 @Setter(AccessLevel.NONE)

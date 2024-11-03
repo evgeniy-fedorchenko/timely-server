@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.security;
 
-import com.efedorchenko.timely.model.AuthRequest;
+import com.efedorchenko.timely.model.auth.AuthRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;

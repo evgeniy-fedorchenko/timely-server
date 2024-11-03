@@ -1,6 +1,5 @@
-package com.efedorchenko.timely.model;
+package com.efedorchenko.timely.model.auth;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -13,7 +12,7 @@ import java.util.List;
 
 @Getter
 @ToString
-@AllArgsConstructor(onConstructor_ = @JsonCreator)
+@AllArgsConstructor
 public class RegisterRequest {
 
     @NotBlank
@@ -24,7 +23,7 @@ public class RegisterRequest {
     private final String password;
 
     @NotNull
-    private final List<String> authorities;
+    private final List<Role> authorities;
 
     @NotNull
     @Size(max = 128)
