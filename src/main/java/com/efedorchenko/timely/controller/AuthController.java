@@ -53,7 +53,7 @@ public class AuthController {
 
     private AuthResponse generateAuthResponse(JwtTokenData token) {
         return token.getUserId() == null
-                ? AuthResponse.fail()
-                : AuthResponse.success(jwtUtil.generateToken(token));
+                ? AuthResponse.failWith(token.getAuthFailReason())
+                : AuthResponse.success(jwtUtil.generateToken(token), token.getAuthorities());
     }
 }

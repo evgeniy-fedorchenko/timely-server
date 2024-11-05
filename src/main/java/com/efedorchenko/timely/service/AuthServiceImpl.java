@@ -3,6 +3,7 @@ package com.efedorchenko.timely.service;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
+import com.efedorchenko.timely.model.auth.AuthFailReason;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
@@ -29,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     public Mono<JwtTokenData> register(RegisterRequest registerRequest) {
 
         return userDetailsRepository.findByUsername(registerRequest.getUsername())
-                .map(user -> JwtTokenData.empty())
+                .map(user -> JwtTokenData.failWith(AuthFailReason.ALREADY_REGISTERED))
                 .switchIfEmpty(Mono.defer(() -> {
 
                     UUID randomUUID = UUID.randomUUID();
@@ -60,6 +61,7 @@ public class AuthServiceImpl implements AuthService {
     @Log
     @Override
     public Mono<JwtTokenData> login(UUID userId) {
+//        Ошибшихся в логине/пароле отсеет Spring Security
         return userDetailsRepository.findById(userId).map(JwtTokenData::fromDetails);
     }
 

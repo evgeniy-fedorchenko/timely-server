@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import reactor.util.annotation.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,15 +21,19 @@ public class JwtTokenData {
 
     private final String email;
 
-    public static JwtTokenData empty() {
-        return new JwtTokenData(null, null, null);
+    @Nullable
+    private final AuthFailReason authFailReason;
+
+    public static JwtTokenData failWith(AuthFailReason authFailReason) {
+        return new JwtTokenData(null, null, null, authFailReason);
     }
 
     public static JwtTokenData fromDetails(UserDetailsImpl userDetails) {
         return new JwtTokenData(
                 userDetails.getId(),
                 Role.parse(userDetails.getAuthorities()),
-                userDetails.getUsername()
+                userDetails.getUsername(),
+                null
         );
     }
 }
