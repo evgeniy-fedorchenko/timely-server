@@ -2,6 +2,7 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserEntityRepository userEntityRepository;
     private final UserDetailsRepository userDetailsRepository;
 
+    @Log
     @Override
     public Mono<JwtTokenData> register(RegisterRequest registerRequest) {
 
@@ -55,11 +57,13 @@ public class AuthServiceImpl implements AuthService {
                 }));
     }
 
+    @Log
     @Override
     public Mono<JwtTokenData> login(UUID userId) {
         return userDetailsRepository.findById(userId).map(JwtTokenData::fromDetails);
     }
 
+    @Log
     @Override
     public Mono<Void> logout() {
         // TODO 03.11.2024 23:49

@@ -2,6 +2,7 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.MonthlyDataBatch;
 import com.efedorchenko.timely.entity.UserData;
+import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.DataRangeRequest;
 import com.efedorchenko.timely.model.EventsAndFines;
 import com.efedorchenko.timely.model.UserDataType;
@@ -34,6 +35,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
     private final ObjectMapper objectMapper;
     private final MonthlyDataBatchRepository dataRepository;
 
+    @Log
     @Override
     public Mono<Void> addData(UUID userId, T userData) {
         return Mono.fromRunnable(() -> {
@@ -52,6 +54,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         }).then();
     }
 
+    @Log
     @Override
     @Transactional
     public Mono<Void> removeData(UUID userId, T userData) {
@@ -72,6 +75,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         }).then();
     }
 
+    @Log
     @Override
     public Flux<T> getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
         int startMonthUID = getMonthUID(dataRangeRequest.getStart());
@@ -97,6 +101,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         });
     }
 
+    @Log
     @Override
     public Mono<EventsAndFines> getRange(UUID userId, DataRangeRequest dataRangeRequest) {
         int startMonthUID = getMonthUID(dataRangeRequest.getStart());
