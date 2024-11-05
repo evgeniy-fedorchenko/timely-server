@@ -1,14 +1,18 @@
 package com.efedorchenko.timely.entity;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
-@Data // FIXME 01.11.2024 00:31
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "monthly_data_batches")
 public class MonthlyDataBatch {
 

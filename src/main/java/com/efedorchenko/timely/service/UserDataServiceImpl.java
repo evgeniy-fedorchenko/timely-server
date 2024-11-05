@@ -19,7 +19,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -116,22 +115,17 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         );
     }
 
-    private <U> List<U> des(String events) {
-        try {
-            return objectMapper.readValue(events, new TypeReference<>() {});
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to deserialize", e); // FIXME 31.10.2024 22:06: exception
-        }
-    }
-
     private <D> List<D> deserializeList(List<MonthlyDataBatch> batches,
                                         Function<MonthlyDataBatch, String> jsonGetter) {
         return batches.stream()
                 .flatMap(batch -> {
                     try {
-                        return objectMapper.readValue(jsonGetter.apply(batch), new TypeReference<List<D>>() {}).stream();
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to deserialize", e); // FIXME 31.10.2024 22:06: exception
+                        return objectMapper
+                                .readValue(jsonGetter.apply(batch), new TypeReference<List<D>>() {})
+                                .stream();
+                    } catch (JsonProcessingException jpe) {
+                        throw new RuntimeException(
+                                "Failed to deserialize batches. Batches: %s. Ex:".formatted(batch), jpe);
                     }
                 })
                 .toList();
@@ -140,8 +134,8 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
     private String serialize(T userData) {
         try {
             return objectMapper.writeValueAsString(userData);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException jpe) {
+            throw new RuntimeException("Failed to serialize userData. UserData: %s. Ex:".formatted(userData), jpe);
         }
     }
 

@@ -72,7 +72,7 @@ public class LogMethod {
                             return Mono.error(ex);
                         });
 
-                    } else {   // FIXME 04.11.2024 18:05: result.toString()
+                    } else {
                         this.doLog(rquidMarker, OUTPUT_PATTERN.formatted(result.toString()), logAnnotation, logger);
                     }
                 }

@@ -66,7 +66,6 @@ public class AuthServiceImpl implements AuthService {
     @Log
     @Override
     public Mono<Void> logout() {
-        // TODO 03.11.2024 23:49
         return null;
     }
 
