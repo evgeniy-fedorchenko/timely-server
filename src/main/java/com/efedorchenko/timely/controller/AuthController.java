@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.controller;
 
 import com.efedorchenko.timely.entity.UserDetailsImpl;
+import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
@@ -9,6 +10,7 @@ import com.efedorchenko.timely.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,23 +29,30 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final AuthService authService;
 
+    @Log
     @PostMapping(path = "/login")
-    public Mono<AuthResponse> login(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return authService.login(userDetails.getId()).map(generateAuthResponse());
+    public Mono<ResponseEntity<AuthResponse>> login(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return authService.login(userDetails.getId())
+                .map(this::generateAuthResponse)
+                .map(r -> ResponseEntity.ok().body(r));
     }
 
+    @Log
     @GetMapping(path = "/logout")
-    public Mono<Void> logout() {
-        return Mono.empty(); // TODO 02.11.2024 22:49: реализовать logout (для этого нужно ставить токенам время жизни)
+    public Mono<ResponseEntity<Void>> logout() {
+        return Mono.empty(); // TODO 02.11.2024 22:49: реализовать logout
     }
 
+    @Log
     @PostMapping(path = "/reg", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<AuthResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        return authService.register(registerRequest).map(generateAuthResponse());
+    public Mono<ResponseEntity<AuthResponse>> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        return authService.register(registerRequest)
+                .map(this::generateAuthResponse)
+                .map(r -> ResponseEntity.ok().body(r));
     }
 
-    private Function<JwtTokenData, AuthResponse> generateAuthResponse() {
-        return token -> token.getUserId() == null
+    private AuthResponse generateAuthResponse(JwtTokenData token) {
+        return token.getUserId() == null
                 ? AuthResponse.fail()
                 : AuthResponse.success(jwtUtil.generateToken(token));
     }
