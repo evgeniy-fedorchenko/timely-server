@@ -53,7 +53,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         }).then();
     }
 
-    @Log
+//    @Log
     @Override
     @Transactional
     public Mono<Void> removeData(UUID userId, T userData) {
@@ -74,7 +74,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
         }).then();
     }
 
-    @Log
+//    @Log
     @Override
     public Flux<T> getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
         int startMonthUID = getMonthUID(dataRangeRequest.getStart());
