@@ -2,7 +2,6 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.MonthlyDataBatch;
 import com.efedorchenko.timely.entity.UserData;
-import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.DataRangeRequest;
 import com.efedorchenko.timely.model.EventsAndFines;
 import com.efedorchenko.timely.model.UserDataType;
@@ -10,16 +9,10 @@ import com.efedorchenko.timely.repository.MonthlyDataBatchRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +27,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
     private final ObjectMapper objectMapper;
     private final MonthlyDataBatchRepository dataRepository;
 
-    @Log
+   /* @Log
     @Override
     public Mono<Void> addData(UUID userId, T userData) {
         return Mono.fromRunnable(() -> {
@@ -113,7 +106,7 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
                         deserializeList(batches, MonthlyDataBatch::getFines)
                 ))
         );
-    }
+    }*/
 
     private <D> List<D> deserializeList(List<MonthlyDataBatch> batches,
                                         Function<MonthlyDataBatch, String> jsonGetter) {
@@ -141,5 +134,25 @@ public class UserDataServiceImpl<T extends UserData> implements UserDataService<
 
     private int getMonthUID(YearMonth yearMonth) {
         return yearMonth.getYear() * 100 + yearMonth.getMonthValue();
+    }
+
+    @Override
+    public Void addData(UUID userId, T event) {
+        return null;
+    }
+
+    @Override
+    public Void removeData(UUID userId, T userData) {
+        return null;
+    }
+
+    @Override
+    public T getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
+        return null;
+    }
+
+    @Override
+    public EventsAndFines getRange(UUID userId, DataRangeRequest dataRangeRequest) {
+        return null;
     }
 }
