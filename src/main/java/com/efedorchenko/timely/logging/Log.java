@@ -1,13 +1,8 @@
 package com.efedorchenko.timely.logging;
 
 import org.slf4j.event.Level;
-import org.springframework.core.annotation.AliasFor;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Аннотация для логирования методов - их параметров и возвращаемого значения
@@ -16,9 +11,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Log {
-
-    @AliasFor("level")
-    Level value() default Level.DEBUG;
 
     /**
      * Указывает, нужно ли включать возвращаемое значение в лог. По умолчанию {@code true}, то есть
@@ -30,7 +22,6 @@ public @interface Log {
     /**
      * Уровень логирования для параметров и результата
      */
-    @AliasFor("value")
     Level level() default Level.DEBUG;
 
 }

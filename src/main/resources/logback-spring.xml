@@ -3,12 +3,14 @@
 
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
-    <property name="LOG_PATTERN" value="%clr(%d{yy-MM-dd HH:mm:ss.SSS}){white,faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) - [%12.12t] [%marker] %clr(%-75.75logger{74}){cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yy-MM-dd HH:mm:ss.SSS}){white,faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) - [%12.12t] [%X{RqUID}] [%marker] %clr(%-75.75logger{74}){cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    <property name="FILE_LOG_PATTERN"    value="%d{yy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} - [%12.12t] [%X{RqUID}] [%marker] %-75.75logger{74} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/app.log</file>
         <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
         </encoder>
         <append>true</append>
         <prudent>false</prudent>
@@ -16,7 +18,7 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </encoder>
     </appender>
 
