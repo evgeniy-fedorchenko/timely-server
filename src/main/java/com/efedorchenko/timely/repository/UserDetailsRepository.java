@@ -1,14 +1,14 @@
 package com.efedorchenko.timely.repository;
 
 import com.efedorchenko.timely.entity.UserDetailsImpl;
-import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
-import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.UUID;
 
-public interface UserDetailsRepository extends R2dbcRepository<UserDetailsImpl, UUID> {
+public interface UserDetailsRepository extends JpaRepository<UserDetailsImpl, UUID> {
 
-    Mono<UserDetails> findByUsername(String username);
+    Optional<UserDetails> findByUsername(String username);
 
 }
