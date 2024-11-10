@@ -1,18 +1,20 @@
 package com.efedorchenko.timely.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
 @Table(name = "monthly_data_batches")
 public class MonthlyDataBatch {
 

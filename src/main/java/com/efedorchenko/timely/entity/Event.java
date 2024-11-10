@@ -4,13 +4,13 @@ import com.efedorchenko.timely.model.UserDataType;
 import com.efedorchenko.timely.model.validation.ValidDuration;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import reactor.util.annotation.Nullable;
 
 import java.time.Duration;
 import java.time.LocalDate;
