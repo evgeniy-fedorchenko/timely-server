@@ -1,11 +1,11 @@
 package com.efedorchenko.timely.model.auth;
 
 import com.efedorchenko.timely.entity.UserDetailsImpl;
+import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import reactor.util.annotation.Nullable;
 
 import java.util.List;
 import java.util.UUID;

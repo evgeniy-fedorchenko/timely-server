@@ -1,8 +1,8 @@
 package com.efedorchenko.timely.security;
 
+import jakarta.annotation.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import reactor.util.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;

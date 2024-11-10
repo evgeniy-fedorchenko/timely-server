@@ -1,104 +1,93 @@
 package com.efedorchenko.timely.configuration;
 
-import com.efedorchenko.timely.filter.JwtAuthenticationWebFilter;
-import com.efedorchenko.timely.filter.RequestUidFilter;
-import com.efedorchenko.timely.security.JsonAuthenticationConverter;
+import com.efedorchenko.timely.security.JwtAuthenticationFilter;
 import com.efedorchenko.timely.security.JwtUtil;
-import com.efedorchenko.timely.security.ReactiveUserDetailsServiceImpl;
+import com.efedorchenko.timely.security.LoginAuthenticationConverter;
+import com.efedorchenko.timely.security.LoginAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
-@EnableWebFluxSecurity
+@EnableWebSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
 
     private static final String AUTH_PATHS = "/auth/**";
-    private static final ServerWebExchangeMatcher ONLY_AUTH_MATCHER =
-            ServerWebExchangeMatchers.pathMatchers(AUTH_PATHS);
-    private static final NegatedServerWebExchangeMatcher EXCEPT_AUTH_MATCHER =
-            new NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers(AUTH_PATHS));
+    private static final RequestMatcher ONLY_AUTH_MATCHER = new AntPathRequestMatcher(AUTH_PATHS);
+    private static final RequestMatcher EXCEPT_AUTH_MATCHER = new NegatedRequestMatcher(ONLY_AUTH_MATCHER);
 
     private final JwtProperties jwtProperties;
-    private final ReactiveUserDetailsServiceImpl userDetailsService;
-    private final JsonAuthenticationConverter jsonAuthenticationConverter;
+    private final UserDetailsService userDetailsService;
+    private final LoginAuthenticationConverter authenticationConverter;
 
     @Bean
-    public SecurityWebFilterChain baseSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
 
         return http
                 .securityMatcher(EXCEPT_AUTH_MATCHER)
-                .authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
+                .authorizeHttpRequests(matcher -> matcher.anyRequest().authenticated())
 
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(AbstractHttpConfigurer::disable)
 
-                .addFilterAt(requestUidFilter(), SecurityWebFiltersOrder.FIRST)
-                .addFilterAt(jwtAuthenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterBefore(jwtAuthenticationFilter(), AnonymousAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public SecurityWebFilterChain authSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
 
         return http
                 .securityMatcher(ONLY_AUTH_MATCHER)
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/auth/reg").permitAll()
-                        .pathMatchers("/auth/login").authenticated()
-                        .anyExchange().denyAll()
+                .authorizeHttpRequests(matcher -> matcher
+                        .requestMatchers("/auth/reg").permitAll()
+                        .requestMatchers("/auth/login").authenticated()
+                        .anyRequest().denyAll()
                 )
 
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(AbstractHttpConfigurer::disable)
 
-                .addFilterAt(requestUidFilter(), SecurityWebFiltersOrder.FIRST)
-                .addFilterAt(userDetailsAuthenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterBefore(loginAuthenticationFilter(), AnonymousAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public JwtAuthenticationWebFilter jwtAuthenticationWebFilter() {
+    protected JwtAuthenticationFilter jwtAuthenticationFilter() {
         JwtUtil jwtUtil = new JwtUtil(jwtProperties);
-        return new JwtAuthenticationWebFilter(jwtUtil, EXCEPT_AUTH_MATCHER);
+        return new JwtAuthenticationFilter(jwtUtil, EXCEPT_AUTH_MATCHER);
     }
 
     @Bean
-    public AuthenticationWebFilter userDetailsAuthenticationWebFilter() {
-        UserDetailsRepositoryReactiveAuthenticationManager authManager =
-                new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
-        authManager.setPasswordEncoder(passwordEncoder());
+    protected LoginAuthenticationFilter loginAuthenticationFilter() {
+        LoginAuthenticationFilter loginAuthenticationFilter =
+                new LoginAuthenticationFilter(passwordEncoder(), userDetailsService, authenticationConverter);
 
-        AuthenticationWebFilter authFilter = new AuthenticationWebFilter(authManager);
-        authFilter.setServerAuthenticationConverter(jsonAuthenticationConverter);
-        authFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/auth/login"));
-
-        return authFilter;
+        AntPathRequestMatcher loginPathRequestMatcher = new AntPathRequestMatcher("/auth/login");
+        loginAuthenticationFilter.setRequiresAuthenticationMatcher(loginPathRequestMatcher);
+        return loginAuthenticationFilter;
     }
 
     @Bean
-    public RequestUidFilter requestUidFilter() {
-        return new RequestUidFilter();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
+    protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
