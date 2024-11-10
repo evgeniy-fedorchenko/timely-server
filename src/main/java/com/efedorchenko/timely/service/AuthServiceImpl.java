@@ -10,11 +10,12 @@ import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
@@ -22,53 +23,49 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private final Mapper mapper;
+    private final ExecutorService executorOfVirtual;
     private final UserEntityRepository userEntityRepository;
     private final UserDetailsRepository userDetailsRepository;
 
-    @Log
+    @Log(level = Level.TRACE)
     @Override
-    public Mono<JwtTokenData> register(RegisterRequest registerRequest) {
+    public JwtTokenData register(RegisterRequest registerRequest) {
 
         return userDetailsRepository.findByUsername(registerRequest.getUsername())
-                .map(user -> JwtTokenData.failWith(AuthFailReason.ALREADY_REGISTERED))
-                .switchIfEmpty(Mono.defer(() -> {
+                .map(ignored -> JwtTokenData.failWith(AuthFailReason.ALREADY_REGISTERED))
+                .orElseGet(() -> {
 
                     UUID randomUUID = UUID.randomUUID();
                     UserDetailsImpl userDetails = mapper.toUserDetailsImpl(registerRequest);
                     userDetails.setId(randomUUID);
 
-                    return Mono.just(JwtTokenData.fromDetails(userDetails))
-                            .flatMap(jwtTokenData -> {
-                                Mono.fromRunnable(() -> {
-                                            UserEntity userEntity = mapper.toUserEntity(registerRequest);
-                                            userEntity.setId(randomUUID);
-                                            userEntityRepository.save(userEntity)
-                                                    .then(userDetailsRepository.save(userDetails))
-                                                    .subscribeOn(Schedulers.boundedElastic())
-                                                    .subscribe(
-                                                            v -> log.debug("New user saved: {}", v),
-                                                            ex -> log.error("Failed to save user. Ex: ", ex)
-                                                    );
-                                        })
-                                        .subscribeOn(Schedulers.boundedElastic())
-                                        .subscribe();
+                    JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
+                    CompletableFuture.runAsync(() -> {
+                        UserEntity userEntity = mapper.toUserEntity(registerRequest);
+                        userEntity.setId(randomUUID);
 
-                                return Mono.just(jwtTokenData);
-                            });
-                }));
+                        UserEntity user = userEntityRepository.save(userEntity);
+                        UserDetailsImpl details = userDetailsRepository.save(userDetails);
+                        log.debug("New user saved. User: {}. Details: {}", user, details);
+
+                    }, executorOfVirtual);
+
+                    return jwtTokenData;
+                });
     }
 
-    @Log
+    @Log(level = Level.TRACE)
     @Override
-    public Mono<JwtTokenData> login(UUID userId) {
+    public JwtTokenData login(UUID userId) {
 //        Ошибшихся в логине/пароле отсеет Spring Security
-        return userDetailsRepository.findById(userId).map(JwtTokenData::fromDetails);
+        return userDetailsRepository.findById(userId)
+                .map(JwtTokenData::fromDetails)
+                .orElseThrow();
     }
 
-    @Log
+    @Log(level = Level.TRACE)
     @Override
-    public Mono<Void> logout() {
-        return null;
+    public void logout() {
     }
 
 }

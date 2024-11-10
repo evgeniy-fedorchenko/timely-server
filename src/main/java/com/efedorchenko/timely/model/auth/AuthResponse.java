@@ -1,12 +1,12 @@
 package com.efedorchenko.timely.model.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import reactor.util.annotation.NonNull;
-import reactor.util.annotation.Nullable;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class AuthResponse {
     @Nullable
     private final AuthFailReason authFailReason;
 
-    public static AuthResponse success(@NonNull String jwtToken, List<Role> authorities) {
+    public static AuthResponse success(@NotNull String jwtToken, List<Role> authorities) {
         return new AuthResponse(true, jwtToken, authorities, null);
     }
 

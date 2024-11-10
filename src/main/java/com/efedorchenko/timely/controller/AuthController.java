@@ -1,6 +1,5 @@
 package com.efedorchenko.timely.controller;
 
-import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
@@ -9,16 +8,16 @@ import com.efedorchenko.timely.security.JwtUtil;
 import com.efedorchenko.timely.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = AuthController.AUTH_ENDPOINT, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -31,24 +30,22 @@ public class AuthController {
 
     @Log
     @PostMapping(path = "/login")
-    public Mono<ResponseEntity<AuthResponse>> login(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return authService.login(userDetails.getId())
-                .map(this::generateAuthResponse)
-                .map(r -> ResponseEntity.ok().body(r));
+    public ResponseEntity<AuthResponse> login(@AuthenticationPrincipal UUID userId) {
+        JwtTokenData jwtTokenData = authService.login(userId);
+        return ResponseEntity.ok(generateAuthResponse(jwtTokenData));
     }
 
     @Log
     @GetMapping(path = "/logout")
-    public Mono<ResponseEntity<Void>> logout() {
-        return Mono.empty(); // TODO 02.11.2024 22:49: реализовать logout
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build(); // TODO 02.11.2024 22:49: реализовать logout
     }
 
     @Log
-    @PostMapping(path = "/reg", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<AuthResponse>> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        return authService.register(registerRequest)
-                .map(this::generateAuthResponse)
-                .map(r -> ResponseEntity.ok().body(r));
+    @PostMapping(path = "/reg")
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        JwtTokenData jwtTokenData = authService.register(registerRequest);
+        return ResponseEntity.ok(generateAuthResponse(jwtTokenData));
     }
 
     private AuthResponse generateAuthResponse(JwtTokenData token) {
