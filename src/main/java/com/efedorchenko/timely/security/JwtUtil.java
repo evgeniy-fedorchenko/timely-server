@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public RawAuthenticationData parseToken(String rawToken) throws AuthException {
+    public RawAuthenticationData parseToken(String rawToken) throws BadCredentialsException {
         try {
 
             Claims body = Jwts.parser()
@@ -66,8 +67,8 @@ public class JwtUtil {
 
             return new RawAuthenticationData(authorities, body.getSubject());
 
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new AuthException("Invalid JWT token", e);
+        } catch (JwtException | IllegalArgumentException ex) {
+            throw new BadCredentialsException("Invalid JWT token", ex);
         }
     }
 
