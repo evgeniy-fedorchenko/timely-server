@@ -1,7 +1,5 @@
 package com.efedorchenko.timely.configuration;
 
-import com.efedorchenko.timely.entity.UserData;
-import com.efedorchenko.timely.model.UserDataDeserializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -26,7 +24,6 @@ public class JacksonConfig {
         objectMapper.registerModule(new JavaTimeModule());
 
         SimpleModule serializerModule = new SimpleModule();
-        serializerModule.addDeserializer(UserData.class, new UserDataDeserializer());
         objectMapper.registerModule(serializerModule);
 
         return objectMapper;
