@@ -3,11 +3,12 @@ package com.efedorchenko.timely.model.validation;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Аннотация принимает на вход два поля (по их строковым именам) аннотированного класса
@@ -20,10 +21,13 @@ import java.lang.annotation.Target;
  *     <li>Хотя бы одно переданное поле отсутствует в аннотированном классе</li>
  *     <li>Хотя бы одно из переданных полей является {@code null}</li>
  * </lu>
+ *
+ * @see CurrentDatesValidator
+ * @see CurrentDatesRange.List
  */
+@Target(TYPE)
+@Retention(RUNTIME)
 @Repeatable(CurrentDatesRange.List.class)
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = CurrentDatesValidator.class)
 public @interface CurrentDatesRange {
 
@@ -31,15 +35,14 @@ public @interface CurrentDatesRange {
 
     String endField();
 
-    String message()
-            default "The 'end' parameter value (%s) cannot be an earlier date than the 'start' parameter value (%s)";
+    String message() default "The 'end' parameter value cannot be an earlier date than the 'start' parameter value";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
+    @Target(TYPE)
+    @Retention(RUNTIME)
     @interface List {
         CurrentDatesRange[] value();
     }
