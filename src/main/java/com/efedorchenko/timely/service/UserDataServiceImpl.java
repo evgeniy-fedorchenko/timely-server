@@ -1,158 +1,119 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.MonthlyDataBatch;
-import com.efedorchenko.timely.entity.UserData;
-import com.efedorchenko.timely.model.DataRangeRequest;
-import com.efedorchenko.timely.model.EventsAndFines;
-import com.efedorchenko.timely.model.UserDataType;
-import com.efedorchenko.timely.repository.MonthlyDataBatchRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import com.efedorchenko.timely.entity.UserDataEntity;
+import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.logging.Log;
+import com.efedorchenko.timely.mapper.UserDataMapper;
+import com.efedorchenko.timely.model.data.DataRangeRequest;
+import com.efedorchenko.timely.model.data.UserDataDto;
+import com.efedorchenko.timely.model.data.UserDataModifyDto;
+import com.efedorchenko.timely.model.data.UserDataType;
+import com.efedorchenko.timely.repository.UserDataRepository;
+import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
+import com.efedorchenko.timely.repository.UserEntityRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
+@Log
 @Service
-@AllArgsConstructor
-public class UserDataServiceImpl<T extends UserData> implements UserDataService<T> {
+@RequiredArgsConstructor
+public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRangeRequest> {
 
+    private final ExecutorService executorOfVirtual;
+    private final UserDataMapper userDataMapper;
+    private final UserEntityRepository userEntityRepository;
+    private final UserDataRepositoryFactory repositoryFactory;
 
-    private final ObjectMapper objectMapper;
-    private final MonthlyDataBatchRepository dataRepository;
-
-   /* @Log
-    @Override
-    public Mono<Void> addData(UUID userId, T userData) {
-        return Mono.fromRunnable(() -> {
-            LocalDate date = userData.getDate();
-            int monthUID = getMonthUID(YearMonth.of(date.getYear(), date.getMonth()));
-
-            Mono.defer(() -> switch (userData.getType()) {
-                                case EVENT -> dataRepository.addEvent(userId, monthUID, serialize(userData));
-                                case FINE -> dataRepository.addFine(userId, monthUID, serialize(userData));
-                            }
-
-                    ).doOnSuccess(id -> log.trace("User's data added, id: {}, data: {}", id, userData))
-                    .doOnError(error -> log.error("Failed to add user's data. Ex: ", error))
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .subscribe();
-        }).then();
-    }
-
-//    @Log
     @Override
     @Transactional
-    public Mono<Void> removeData(UUID userId, T userData) {
-        return Mono.fromRunnable(() -> {
-            LocalDate date = userData.getDate();
-            int monthUID = getMonthUID(YearMonth.of(date.getYear(), date.getMonth()));
+    public void addData(UUID userId, UserDataDto userDataDto) {
+        CompletableFuture.runAsync(() -> {
+            UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
+            UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
 
-            Mono.defer(() -> switch (userData.getType()) {
-                                case EVENT -> dataRepository.removeEvent(userId, monthUID, serialize(userData));
-                                case FINE -> dataRepository.removeFine(userId, monthUID, serialize(userData));
-                            }
+            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
+            repository.save(userDataEntity);
 
-                    ).flatMap(id -> dataRepository.deleteIfEmpty(userId, monthUID).thenReturn(id))
-                    .doOnSuccess(id -> log.trace("User's data removed, id: {}, data: {}", id, userData))
-                    .doOnError(error -> log.error("Failed to remove user's data. Ex: ", error))
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .subscribe();
-        }).then();
+        }, executorOfVirtual);
     }
 
-//    @Log
     @Override
-    public Flux<T> getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
-        int startMonthUID = getMonthUID(dataRangeRequest.getStart());
-        int endMonthUID = getMonthUID(dataRangeRequest.getEnd());
-
-        return Flux.defer(() ->
-                switch (dataType) {
-                    case EVENT -> dataRepository.findEventsFromRange(userId, startMonthUID, endMonthUID);
-                    case FINE -> dataRepository.findFinesFromRange(userId, startMonthUID, endMonthUID);
+    @Transactional
+    public void deleteData(UUID userId, UserDataType userDataType, Long dataId) {
+        CompletableFuture.runAsync(() -> {
+            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataType);
+            repository.findById(dataId).ifPresentOrElse(data -> {
+                if (data.getUser().getId() != userId) {
+                    log.warn("UserDataObject [{}] does not match UserEntity with id [{}] for deleting", dataId, userId);
+                    return;
                 }
+                repository.deleteById(dataId);
 
-        ).flatMap(eventsJson -> {
-            try {
-                CollectionType listType = objectMapper.getTypeFactory()
-                        .constructCollectionType(List.class, UserData.class);
+            }, () -> log.warn("UserDataObject [{}] not found for deleting", userId));
 
-                List<T> dataObjects = objectMapper.readValue(eventsJson, listType);
-                return Flux.fromIterable(dataObjects);
+        }, executorOfVirtual);
+    }
 
-            } catch (JsonProcessingException jpe) {
-                return Flux.error(new RuntimeException("Failed to parse events JSON", jpe));
+    @Override
+    @Transactional(readOnly = true)
+    public CompletableFuture<Collection<UserDataDto>> getRange(
+            UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStart());
+            int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEnd());
+            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
+            List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
+
+            if (foundEntities.isEmpty()) {
+                return Collections.emptyList();
             }
-        });
+
+            ArrayList<UserDataDto> dtos = new ArrayList<>();
+            for (UserDataEntity entity : foundEntities) {
+                dtos.add(userDataMapper.map(entity));
+            }
+            return dtos;
+
+        }, executorOfVirtual);
     }
 
-    @Log
     @Override
-    public Mono<EventsAndFines> getRange(UUID userId, DataRangeRequest dataRangeRequest) {
-        int startMonthUID = getMonthUID(dataRangeRequest.getStart());
-        int endMonthUID = getMonthUID(dataRangeRequest.getEnd());
-
-        return Mono.from(dataRepository.findAllByUserIdAndMonthUIDBetween(userId, startMonthUID, endMonthUID)
-                .collectList()
-                .map(batches -> new EventsAndFines(
-                        deserializeList(batches, MonthlyDataBatch::getEvents),
-                        deserializeList(batches, MonthlyDataBatch::getFines)
-                ))
-        );
-    }*/
-
-    private <D> List<D> deserializeList(List<MonthlyDataBatch> batches,
-                                        Function<MonthlyDataBatch, String> jsonGetter) {
-        return batches.stream()
-                .flatMap(batch -> {
-                    try {
-                        return objectMapper
-                                .readValue(jsonGetter.apply(batch), new TypeReference<List<D>>() {})
-                                .stream();
-                    } catch (JsonProcessingException jpe) {
-                        throw new RuntimeException(
-                                "Failed to deserialize batches. Batches: %s. Ex:".formatted(batch), jpe);
-                    }
-                })
-                .toList();
-    }
-
-    private String serialize(T userData) {
-        try {
-            return objectMapper.writeValueAsString(userData);
-        } catch (JsonProcessingException jpe) {
-            throw new RuntimeException("Failed to serialize userData. UserData: %s. Ex:".formatted(userData), jpe);
+    @Transactional
+    public void changeData(UUID userId, UserDataModifyDto modifyingData) {
+        UserDataDto newData = modifyingData.getNewData();
+        Long dataId = newData.getId();
+        if (dataId == null) {
+            String errMess = "Cannot modify userData because data id is null. Provided data: [%s]"
+                    .formatted(modifyingData.toString());
+            throw new IllegalArgumentException(errMess);
         }
-    }
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(newData.getType());
+        UserDataEntity dataEntity = repository.findById(dataId).orElseThrow(() ->
+                new EntityNotFoundException("User data [%s] for modifying is not found".formatted(modifyingData))
+        );
 
-    private int getMonthUID(YearMonth yearMonth) {
-        return yearMonth.getYear() * 100 + yearMonth.getMonthValue();
-    }
+        if (!modifyingData.getModifyingUserId().equals(dataEntity.getUser().getId())) {
+            String errMess = "User data found [%s], but owner id does not equal with modifyingUserId [%s]"
+                    .formatted(dataEntity, modifyingData.getModifyingUserId());
+            throw new IllegalArgumentException(errMess);
+        }
 
-    @Override
-    public Void addData(UUID userId, T event) {
-        return null;
-    }
-
-    @Override
-    public Void removeData(UUID userId, T userData) {
-        return null;
-    }
-
-    @Override
-    public T getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
-        return null;
-    }
-
-    @Override
-    public EventsAndFines getRange(UUID userId, DataRangeRequest dataRangeRequest) {
-        return null;
+        CompletableFuture.runAsync(() -> {
+            UserDataEntity updatedDataEntity = userDataMapper.update(dataEntity, newData);
+            repository.save(updatedDataEntity);
+        }, executorOfVirtual);
     }
 }

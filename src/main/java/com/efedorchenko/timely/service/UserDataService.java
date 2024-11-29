@@ -1,18 +1,20 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.model.DataRangeRequest;
-import com.efedorchenko.timely.model.EventsAndFines;
-import com.efedorchenko.timely.model.UserDataType;
+import com.efedorchenko.timely.model.data.UserDataModifyDto;
+import com.efedorchenko.timely.model.data.UserDataType;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-public interface UserDataService<T> {
+public interface UserDataService<D, RANGE_REQ> {
 
-    Void addData(UUID userId, T event);
+    void addData(UUID userId, D userDataDto);
 
-    Void removeData(UUID userId, T userData);
+    void deleteData(UUID userId, UserDataType userDataType, Long dataId);
 
-    T getRange(UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType);
+    CompletableFuture<Collection<D>> getRange(
+            UUID userId, RANGE_REQ dataRangeRequest, UserDataType dataType);
 
-    EventsAndFines getRange(UUID userId, DataRangeRequest dataRangeRequest);
+    void changeData(UUID userId, UserDataModifyDto newData);
 }
