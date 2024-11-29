@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.model;
+package com.efedorchenko.timely.model.data;
 
 import com.efedorchenko.timely.model.validation.CurrentDatesRange;
 import jakarta.validation.constraints.NotNull;
