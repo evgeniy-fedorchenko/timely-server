@@ -1,33 +1,46 @@
 package com.efedorchenko.timely.entity;
 
-import com.efedorchenko.timely.model.UserDataType;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Future;
+import com.efedorchenko.timely.model.data.UserDataType;
+import com.efedorchenko.timely.model.validation.Constant;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(
+        name = "fines",
+        schema = "data",
+        indexes = @Index(name = "fines_month_uid_user_id_idx", columnList = "month_uid,user_id")
+)
 @Getter
+@Setter
 @ToString
-@AllArgsConstructor(onConstructor_ = @JsonCreator)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Fine extends UserData {
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public final class Fine extends UserDataEntity {
 
-    @Future
     @NotNull
-    private final LocalDate date;
+    private LocalDate date;
 
-    @Nullable
-    private final String description;
+    @Column(nullable = false)
+    private int monthUid;
 
-    @Positive
-    private final int amount;
+    @NotNull
+    @Size(max = Constant.FINE_DESCRIPTION_MAX_LEN)
+    private String description;
+
+    @Column(nullable = false)
+    private int amount;
 
     @Override
     public UserDataType getType() {
