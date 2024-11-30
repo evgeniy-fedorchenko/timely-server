@@ -22,13 +22,31 @@
         </encoder>
     </appender>
 
+    <!-- Стандартные логгеры -->
     <logger name="com.efedorchenko.timely" level="TRACE" additivity="false">
         <appender-ref ref="FILE" />
         <appender-ref ref="CONSOLE" />
     </logger>
-
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
     <root level="INFO">
         <appender-ref ref="FILE" />
         <appender-ref ref="CONSOLE" />
     </root>
+
+    <!-- Логгеры для отладки SQL (требуются соответствующие свойста) -->
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <!-- Логгеры для отладки кеширования -->
+    <logger name="org.springframework.cache" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
 </configuration>
