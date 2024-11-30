@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.controller;
 
 import com.efedorchenko.timely.configuration.ApplicationProperties;
+import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.data.DataRangeRequest;
 import com.efedorchenko.timely.model.data.UserDataDto;
@@ -9,9 +10,7 @@ import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.service.UserDataService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.slf4j.event.Level;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -28,22 +27,21 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @Log(Level.DEBUG)
 @Validated
 @AllArgsConstructor
 @RestController
 @ResponseStatus(HttpStatus.ACCEPTED)
-@RequestMapping(path = DataController.DATA_ENDPOINT,
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping(path = DataController.DATA_ENDPOINT)
 public class DataController {
 
     public static final String DATA_ENDPOINT = ApplicationProperties.BASE_PATH + "/data";
 
     private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
 
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public void addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
         userDataService.addData(userId, userDataDto);
     }
@@ -56,14 +54,14 @@ public class DataController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/{dataType}")
+    @PostMapping(path = "/{dataType}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public CompletableFuture<Collection<UserDataDto>> getRange(@AuthenticationPrincipal UUID userId,
                                                                @RequestBody @Valid DataRangeRequest dataRangeRequest,
                                                                @PathVariable UserDataType dataType) {
         return userDataService.getRange(userId, dataRangeRequest, dataType);
     }
 
-    @PatchMapping
+    @PatchMapping(consumes = APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void editData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataModifyDto newData) {
         userDataService.changeData(userId, newData);
