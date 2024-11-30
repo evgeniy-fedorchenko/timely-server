@@ -1,17 +1,19 @@
 package com.efedorchenko.timely.model.auth;
 
+import com.efedorchenko.timely.model.SpaceKeys;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @ToString
+@Builder(builderClassName = "Builder")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthResponse {
@@ -22,16 +24,25 @@ public class AuthResponse {
     @ToString.Exclude
     private final String jwtToken;
 
-    private final List<Role> authorities;
+    private final Set<RoleType> roles;
 
     @Nullable
-    private final AuthFailReason authFailReason;
+    private final SpaceKeys generatedSpaceKeys;
 
-    public static AuthResponse success(@NotNull String jwtToken, List<Role> authorities) {
-        return new AuthResponse(true, jwtToken, authorities, null);
-    }
+    @Nullable
+    private final AuthFailReason reason;
+
+    @Nullable
+    private final String errorMessage;
 
     public static AuthResponse failWith(AuthFailReason authFailReason) {
-        return new AuthResponse(false, null, null, authFailReason);
+        return new AuthResponse(
+                false,
+                null,
+                null,
+                null,
+                authFailReason,
+                authFailReason.getDescription()
+        );
     }
 }
