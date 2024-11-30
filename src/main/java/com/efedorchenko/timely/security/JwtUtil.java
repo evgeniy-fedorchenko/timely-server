@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor
 @Component
+@EnableConfigurationProperties(JwtProperties.class)
 public class JwtUtil {
 
     private static final String EMAIL_KEY = "email";
@@ -38,7 +40,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .subject(tokenData.getUserId().toString())
-                .claim(ROLES_KEY, tokenData.getAuthorities())
+                .claim(ROLES_KEY, tokenData.getRoles())
                 .claim(EMAIL_KEY, tokenData.getEmail())
                 .signWith(getKey())
                 .issuedAt(now)
