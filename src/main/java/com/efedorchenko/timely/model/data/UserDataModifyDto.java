@@ -9,9 +9,9 @@ import lombok.extern.jackson.Jacksonized;
 import java.util.UUID;
 
 @Getter
+@ToString
 @Builder
 @Jacksonized
-@ToString
 public class UserDataModifyDto {
 
     @NotNull
