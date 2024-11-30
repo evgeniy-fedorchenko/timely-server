@@ -28,7 +28,7 @@ public class RegisterRequest {
     private final String password;
 
     @NotNull
-    private final List<Role> authorities;
+    private final RoleType role;
 
     @NotNull
     @Size(max = 128)
