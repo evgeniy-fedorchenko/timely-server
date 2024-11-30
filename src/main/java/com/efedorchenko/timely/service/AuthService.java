@@ -1,15 +1,12 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.model.auth.JwtTokenData;
-import com.efedorchenko.timely.model.auth.RegisterRequest;
-
 import java.util.UUID;
 
-public interface AuthService {
+public interface AuthService<REQ, RESP> {
 
-    JwtTokenData register(RegisterRequest registerRequest);
+    RESP register(REQ request);
 
-    JwtTokenData login(UUID userId);
+    RESP login(UUID userId);
 
     void logout();
 }
