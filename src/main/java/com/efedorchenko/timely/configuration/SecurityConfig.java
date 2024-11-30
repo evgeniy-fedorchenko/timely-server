@@ -1,11 +1,11 @@
 package com.efedorchenko.timely.configuration;
 
+import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.security.JwtAuthenticationFilter;
 import com.efedorchenko.timely.security.JwtUtil;
 import com.efedorchenko.timely.security.LoginAuthenticationConverter;
 import com.efedorchenko.timely.security.LoginAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,18 +17,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import static com.efedorchenko.timely.configuration.ApplicationProperties.BASE_PATH;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
 
-    private static final String AUTH_PATHS = "/auth/**";
-    private static final RequestMatcher ONLY_AUTH_MATCHER = new AntPathRequestMatcher(AUTH_PATHS);
-    private static final RequestMatcher EXCEPT_AUTH_MATCHER = new NegatedRequestMatcher(ONLY_AUTH_MATCHER);
+    public static final RequestMatcher BASE_MATCHER = new AntPathRequestMatcher(BASE_PATH + "/**");
+    public static final RequestMatcher ONLY_AUTH_MATCHER = new AntPathRequestMatcher(BASE_PATH + "/auth/**");
+    public static final RequestMatcher EXCEPT_AUTH_MATCHER =
+            request -> BASE_MATCHER.matches(request) && !ONLY_AUTH_MATCHER.matches(request);
 
     private final JwtProperties jwtProperties;
     private final UserDetailsService userDetailsService;
@@ -86,7 +87,7 @@ public class SecurityConfig {
         LoginAuthenticationFilter loginAuthenticationFilter =
                 new LoginAuthenticationFilter(passwordEncoder(), userDetailsService, authenticationConverter);
 
-        AntPathRequestMatcher loginPathRequestMatcher = new AntPathRequestMatcher("/auth/login");
+        AntPathRequestMatcher loginPathRequestMatcher = new AntPathRequestMatcher(BASE_PATH + "/auth/login");
         loginAuthenticationFilter.setRequiresAuthenticationMatcher(loginPathRequestMatcher);
         return loginAuthenticationFilter;
     }

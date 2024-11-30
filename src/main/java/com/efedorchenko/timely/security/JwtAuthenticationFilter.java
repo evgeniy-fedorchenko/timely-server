@@ -36,8 +36,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String rawToken = extract(request).orElseThrow(() -> new BadCredentialsException("Invalid JWT token"));
+        Optional<String> rawTokenOpt = extract(request);
+        if (rawTokenOpt.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid JWT token");
+            return;
+        }
 
+        String rawToken = rawTokenOpt.get();
         try {
             JwtUtil.RawAuthenticationData rawAuthData = jwtUtil.parseToken(rawToken);
             AuthenticationToken authenticationToken = AuthenticationToken.authenticate(
@@ -57,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> extract(HttpServletRequest request) {
-
         return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
                 .filter(authHeader -> authHeader.startsWith(BEARER_PREFIX))
                 .map(rawAuthorizationHeaderValue -> rawAuthorizationHeaderValue.substring(BEARER_PREFIX.length()));
