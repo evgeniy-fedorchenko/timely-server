@@ -39,7 +39,10 @@ public class SecurityConfig {
 
         return http
                 .securityMatcher(EXCEPT_AUTH_MATCHER)
-                .authorizeHttpRequests(matcher -> matcher.anyRequest().authenticated())
+                .authorizeHttpRequests(matcher -> matcher
+                        .requestMatchers("swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
+                        .requestMatchers("/actuator/**").hasRole(RoleType.MODERATOR.name())
+                        .anyRequest().authenticated())
 
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -56,8 +59,10 @@ public class SecurityConfig {
         return http
                 .securityMatcher(ONLY_AUTH_MATCHER)
                 .authorizeHttpRequests(matcher -> matcher
-                        .requestMatchers("/auth/reg").permitAll()
-                        .requestMatchers("/auth/login").authenticated()
+                        .requestMatchers("swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
+                        .requestMatchers("/actuator/**").hasRole(RoleType.MODERATOR.name())
+                        .requestMatchers(BASE_PATH + "/auth/reg").permitAll()
+                        .requestMatchers(BASE_PATH + "/auth/login").authenticated()
                         .anyRequest().denyAll()
                 )
 
