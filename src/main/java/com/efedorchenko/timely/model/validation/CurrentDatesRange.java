@@ -35,7 +35,7 @@ public @interface CurrentDatesRange {
 
     String endField();
 
-    String message() default "The 'end' parameter value cannot be an earlier date than the 'start' parameter value";
+    String message() default "The 'end' [%s] parameter value cannot be an earlier date than the 'start' parameter value [%s]";
 
     Class<?>[] groups() default {};
 

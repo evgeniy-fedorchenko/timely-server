@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 @Slf4j
 public class AtLeastOneNotNullValidator implements ConstraintValidator<AtLeastOneNotNull, Object> {
@@ -34,20 +35,26 @@ public class AtLeastOneNotNullValidator implements ConstraintValidator<AtLeastOn
                 }
                 return true;
             }
+            setErrMessInContext(context, fieldNames);
             return false;
 
         } catch (NoSuchFieldException ex) {
-            String mess = "Validation of [%s] type filed: some of the fields %s do not belong to the target class"
+            String errMess = "Validation of [%s] type filed: some of the fields %s do not found in the target class"
                     .formatted(value.getClass(), fieldNames);
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(mess).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(errMess).addConstraintViolation();
             return false;
 
         } catch (Exception ex) {
-            String errMessPattern = "Cannot validate fields {} at object of {} for an unknown reason. Returns that the field is valid Ex: {}";
+            String errMessPattern = "Cannot validate fields {} at object of {} for an unknown reason. Returns that the field is invalid Ex: {}";
             log.error(errMessPattern, fieldNames, value.getClass(), ex.getMessage());
-            return true;
+            return false;
         }
     }
 
+    private void setErrMessInContext(ConstraintValidatorContext context, String... fieldNames) {
+        String mess = context.getDefaultConstraintMessageTemplate().formatted(Arrays.asList(fieldNames));
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(mess);
+    }
 }

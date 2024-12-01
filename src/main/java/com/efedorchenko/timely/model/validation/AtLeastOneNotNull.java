@@ -34,7 +34,7 @@ public @interface AtLeastOneNotNull {
 
     String[] value();
 
-    String message() default "At least one field must be not null";
+    String message() default "At least one field of [%s] must be not null";
 
     Class<?>[] groups() default {};
 
