@@ -117,7 +117,7 @@ public @interface Log {
      */
     @Documented
     @Retention(RUNTIME)
-    @Target({ METHOD, PARAMETER, ANNOTATION_TYPE })
+    @Target({ TYPE, METHOD, PARAMETER, ANNOTATION_TYPE })
     @interface Ignore {
 
         /**

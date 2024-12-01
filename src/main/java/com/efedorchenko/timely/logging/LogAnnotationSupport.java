@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-class LogSupport {
+class LogAnnotationSupport {
 
     private static final Ignore.Mode[] DEFAULT_MODES
             = new Ignore.Mode[]{ Ignore.Mode.COMPLETION };
@@ -19,7 +19,7 @@ class LogSupport {
 
     private final List<Ignore.Mode> methodIgnoreModes;
 
-    LogSupport(Log logAnnotation, @Nullable Ignore ignoreMethodAnnotation) {
+    LogAnnotationSupport(Log logAnnotation, @Nullable Ignore ignoreMethodAnnotation) {
         this.logAnnotation = logAnnotation;
         this.ignoreMethodAnnotation = ignoreMethodAnnotation;
 
@@ -30,6 +30,10 @@ class LogSupport {
                     ? Arrays.asList(ignoreMethodAnnotation.value())
                     : Arrays.asList(ignoreMethodAnnotation.mode());
         }
+    }
+
+    LogAnnotationSupport(Log logAnnotation) {
+        this(logAnnotation, null);
     }
 
     boolean needsIgnoreInvoke() {

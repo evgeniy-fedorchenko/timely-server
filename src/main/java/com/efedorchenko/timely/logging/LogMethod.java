@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -35,15 +34,16 @@ public class LogMethod {
     private static final String INPUT_PATTERN = "-> (%s)";
     private static final String OUTPUT_PATTERN = "<- (%s)";
     private static final String EX_PATTERN = "!- %s";
+    private static final String EMPTY_STRING = "";
 
     private final ExecutorService executorOfVirtual;
 
-    @Pointcut("@annotation(logAnnotation) || @within(logAnnotation)")
-    public void logPointcut(Log logAnnotation) {
+    @Pointcut("@annotation(log) || @within(log)")
+    public void logPointcut(Log log) {
     }
 
-    @Around(value = "logPointcut(logAnnotation)", argNames = "joinPoint,logAnnotation")
-    public Object logAround(ProceedingJoinPoint joinPoint, Log logAnnotation) throws Throwable {
+    @Around(value = "logPointcut(log)", argNames = "joinPoint,log")
+    public Object logAround(ProceedingJoinPoint joinPoint, Log log) throws Throwable {
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
@@ -51,12 +51,11 @@ public class LogMethod {
             return joinPoint.proceed();
         }
 
-        Log methodAnnotation = method.getAnnotation(Log.class);
-        if (methodAnnotation != null) {
-            logAnnotation = methodAnnotation;
-        }
+        Log logAnnotation = Optional.ofNullable(method.getAnnotation(Log.class)).orElse(log);
+        LogAnnotationSupport logSupport = Optional.ofNullable(method.getAnnotation(Ignore.class))
+                .map(ignoreAnnotation -> new LogAnnotationSupport(logAnnotation, ignoreAnnotation))
+                .orElseGet(() -> new LogAnnotationSupport(logAnnotation));
 
-        LogSupport logSupport = new LogSupport(logAnnotation, method.getAnnotation(Ignore.class));
         Logger logger = LoggerFactory.getLogger(method.getDeclaringClass().getName() + "." + method.getName());
         boolean enabledForLevel = logger.isEnabledForLevel(logSupport.getArgsLevel());
 
@@ -77,11 +76,10 @@ public class LogMethod {
 
 
         if (result instanceof CompletableFuture<?> future) {
-            future.whenComplete((res, ex) ->
-                    doLogResult((ex != null ? ex : res), logger, logSupport));
+            future.whenComplete((res, ex) -> doLogResult((ex != null ? ex : res), logger, logSupport));
 
         } else if (method.getReturnType().equals(Void.TYPE)) {
-            doLogResult("", logger, logSupport);
+            doLogResult(EMPTY_STRING, logger, logSupport);
 
         } else {
             doLogResult(result, logger, logSupport);
@@ -90,27 +88,27 @@ public class LogMethod {
         return result;
     }
 
-    private void logArguments(Object[] args, Parameter[] sourceParams, Logger logger, LogSupport logSupport) {
+    private void logArguments(Object[] args, Parameter[] sourceParams, Logger logger, LogAnnotationSupport logSupport) {
         try {
 
             if (logSupport.needsIgnoreArguments()) {
-                logger.atLevel(logSupport.getArgsLevel()).log(INPUT_PATTERN.formatted(""));
+                logger.atLevel(logSupport.getArgsLevel()).log(INPUT_PATTERN.formatted(EMPTY_STRING));
                 return;
             }
 
-
             List<Object> loggableArgs = new ArrayList<>();
             IntStream.range(0, args.length).forEach(idx -> {
-                        Optional<Annotation> first = Arrays.stream(sourceParams[idx].getAnnotations())
+                        boolean isNotIgnoredParameter = Arrays.stream(sourceParams[idx].getAnnotations())
                                 .filter(a -> a.annotationType().equals(Ignore.class))
-                                .findFirst();
-                        if (first.isEmpty()) {
+                                .findFirst()
+                                .isEmpty();
+                        if (isNotIgnoredParameter) {
                             loggableArgs.add(args[idx]);
                         }
                     }
             );
             String params = loggableArgs.isEmpty()
-                    ? ""
+                    ? EMPTY_STRING
                     : loggableArgs.stream()
                     .map(Object::toString)
                     .collect(Collectors.joining(", "));
@@ -121,7 +119,7 @@ public class LogMethod {
         }
     }
 
-    private void doLogResult(Object loggingObj, Logger logger, LogSupport logSupport) {
+    private void doLogResult(Object loggingObj, Logger logger, LogAnnotationSupport logSupport) {
         try {
 
             if (loggingObj instanceof Throwable t
@@ -136,7 +134,7 @@ public class LogMethod {
                     return;
 
                 } else if (logSupport.needsIgnoreReturnedValue()) {
-                    logger.atLevel(logSupport.getReturnLevel()).log(OUTPUT_PATTERN.formatted(""));
+                    logger.atLevel(logSupport.getReturnLevel()).log(OUTPUT_PATTERN.formatted(EMPTY_STRING));
                     return;
                 }
                 String mess = OUTPUT_PATTERN.formatted(loggingObj != null ? loggingObj.toString() : "null");
