@@ -45,7 +45,7 @@ public class LoginAuthenticationConverter implements AuthenticationConverter {
 
         } catch (IOException ioex) {
             if (log.isWarnEnabled()) {
-                log.warn("Convert authentication data failed\nAuthentication data: {}\nIp: {}. Ex: {}",
+                log.warn("Convert authentication data failed\nAuthentication data: [{}]\nIp: {}. Ex: {}",
                         authRequest, request.getRemoteAddr(), ioex.getMessage());
             }
             throw new BadCredentialsException("Invalid authentication data");

@@ -1,16 +1,15 @@
 package com.efedorchenko.timely.mapper;
 
 import com.efedorchenko.timely.entity.UserDataEntity;
+import com.efedorchenko.timely.exception.ServerException;
 import com.efedorchenko.timely.model.data.UserDataDto;
 import com.efedorchenko.timely.model.data.UserDataType;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Component
 public class MapperFactory {
 
@@ -26,9 +25,9 @@ public class MapperFactory {
         try {
             return ((AbstractMapper<E, D>) mapperMap.get(userDataType));
         } catch (ClassCastException cce) {
-            log.error("Could not get concrete UserDataMapper in factory from type '{}'. Ex: {}",
-                    userDataType, cce.getMessage());
-            throw cce;
+            String errMess = "Could not get concrete UserDataMapper in factory from type [%s], available only [%s]. Ex: %s"
+                    .formatted(userDataType, mapperMap.toString(), cce.getMessage());
+            throw new ServerException(errMess, cce);
         }
     }
 }

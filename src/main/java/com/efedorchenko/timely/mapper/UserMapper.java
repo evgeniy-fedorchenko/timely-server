@@ -4,6 +4,7 @@ import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.exception.ServerException;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.repository.RoleRepository;
@@ -52,9 +53,10 @@ public class UserMapper {
     }
 
     private Role getRole(RoleType roleType) {
-        return roleRepository.findByValue(roleType).orElseThrow(() ->
-                new IllegalArgumentException(
-                        "Role %s does not exist. There are only %s".formatted(roleType, roleRepository.getValues())
-                ));
+        return roleRepository.findByValue(roleType).orElseThrow(() -> {
+            String errMess = "Role [%s] does not exist. There are only [%s]. Please check how validation allowed this type"
+                    .formatted(roleType, roleRepository.getValues());
+            return new ServerException(errMess);
+        });
     }
 }
