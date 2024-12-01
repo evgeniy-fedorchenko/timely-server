@@ -5,16 +5,19 @@ import jakarta.persistence.Converter;
 
 import java.time.Duration;
 
+/**
+ * В БД храним {@link Event#workDuration} с точностью до секунды, так как более высокая точность ни к чему
+ */
 @Converter(autoApply = true)
 public class WorkDurationConverter implements AttributeConverter<Duration, Long> {
 
     @Override
     public Long convertToDatabaseColumn(Duration attribute) {
-        return attribute.toSeconds(); // Преобразуйте Duration в секунды
+        return attribute.toSeconds();
     }
 
     @Override
     public Duration convertToEntityAttribute(Long dbData) {
-        return Duration.ofSeconds(dbData); // Преобразуйте секунды обратно в Duration
+        return Duration.ofSeconds(dbData);
     }
 }

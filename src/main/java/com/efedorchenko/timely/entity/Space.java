@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -51,6 +53,19 @@ public class Space {
     @Nullable
     @OneToMany(mappedBy = "consistsInSpace")
     private List<UserEntity> participants;
+
+    @NotNull
+    public List<UserEntity> getParticipants() {
+        return participants == null ? Collections.emptyList() : new ArrayList<>(participants);
+    }
+
+    public void setParticipants(@Nullable List<UserEntity> participants) {
+        if (participants == null) {
+            this.participants = Collections.emptyList();
+        } else {
+            this.participants = List.copyOf(participants);
+        }
+    }
 
     @Override
     public String toString() {

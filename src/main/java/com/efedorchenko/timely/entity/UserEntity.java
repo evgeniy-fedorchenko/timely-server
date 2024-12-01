@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,11 +57,11 @@ public class UserEntity implements Persistable<UUID> {
     @JoinColumn(name = "consist_in_space_id")
     private Space consistsInSpace;
 
-    @Nullable
+    @NotNull
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
 
-    @Nullable
+    @NotNull
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fine> fines;
 
@@ -71,7 +73,33 @@ public class UserEntity implements Persistable<UUID> {
         return isNew;
     }
 
-    @Override
+    @NotNull
+    public List<Event> getEvents() {
+        return events == null ? Collections.emptyList() : new ArrayList<>(events);
+    }
+
+    @NotNull
+    public List<Fine> getFines() {
+        return fines == null ? Collections.emptyList() : new ArrayList<>(fines);
+    }
+
+    public void setEvents(@Nullable List<Event> events) {
+        if (events == null) {
+            this.events = Collections.emptyList();
+        } else {
+            this.events = List.copyOf(events);
+        }
+    }
+
+    public void setFines(@Nullable List<Fine> fines) {
+        if (fines == null) {
+            this.fines = Collections.emptyList();
+        } else {
+            this.fines = List.copyOf(fines);
+        }
+
+
+    }   @Override
     public String toString() {
         return "UserEntity{id=%s, name='%s', position='%s', rate='%d', createdSpace=%s, consistsInSpace=%s, eventCont=%d, finesCont=%d}"
                 .formatted(id.toString(),

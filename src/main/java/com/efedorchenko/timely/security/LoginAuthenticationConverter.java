@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,11 +20,15 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class LoginAuthenticationConverter implements AuthenticationConverter {
 
     private final Validator validator;
     private final ObjectMapper objectMapper;
+
+    public LoginAuthenticationConverter(Validator validator, ObjectMapper objectMapper) {
+        this.validator = validator;
+        this.objectMapper = new ObjectMapper(objectMapper.getFactory());
+    }
 
     @Override
     public Authentication convert(HttpServletRequest request) {

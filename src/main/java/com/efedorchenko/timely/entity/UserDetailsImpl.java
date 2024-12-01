@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.entity;
 
 import com.efedorchenko.timely.model.validation.Constant;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,12 +52,13 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
     @ToString.Exclude
     private String password;
 
+    @NotNull
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             schema = "security",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            joinColumns = @JoinColumn(name = "user_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false)
     )
     private Set<Role> roles;
 
@@ -65,6 +69,18 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
     @Override
     public boolean isNew() {
         return isNew;
+    }
+
+    public Set<Role> getRoles() {
+        return roles == null ? Collections.emptySet() : new HashSet<>(roles);
+    }
+
+    public void setRoles(@Nullable Set<Role> roles) {
+        if (roles == null) {
+            this.roles = Collections.emptySet();
+        } else {
+            this.roles = Set.copyOf(roles);
+        }
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
