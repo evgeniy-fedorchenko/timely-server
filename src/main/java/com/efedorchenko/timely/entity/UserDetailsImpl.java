@@ -1,14 +1,12 @@
 package com.efedorchenko.timely.entity;
 
+import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.model.validation.Constant;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -24,13 +22,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user_details", schema = "security")
@@ -52,15 +46,9 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
     @ToString.Exclude
     private String password;
 
-    @NotNull
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            schema = "security",
-            joinColumns = @JoinColumn(name = "user_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false)
-    )
-    private Set<Role> roles;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @Transient
     @ToString.Exclude
@@ -71,36 +59,15 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
         return isNew;
     }
 
-    public Set<Role> getRoles() {
-        return roles == null ? Collections.emptySet() : new HashSet<>(roles);
-    }
-
-    public void setRoles(@Nullable Set<Role> roles) {
-        if (roles == null) {
-            this.roles = Collections.emptySet();
-        } else {
-            this.roles = Set.copyOf(roles);
-        }
-    }
-
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (roles == null) {
+        if (role == null) {
             return AuthorityUtils.NO_AUTHORITIES;
         }
-        return roles.stream()
-                .map(r -> r.getValue().name())
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toCollection(ArrayList::new));
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getValue().name());
+        return Collections.singletonList(authority);
     }
 
-    public void addRole(Role role) {
-        if (role == null) {
-            return;
-        }
-        if (roles == null) {
-            this.setRoles(Set.of(role));
-        } else {
-            this.roles.add(role);
-        }
+    public boolean hasRole(RoleType roleType) {
+        return this.role.getValue().equals(roleType);
     }
 }

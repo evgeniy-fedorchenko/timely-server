@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                     AuthResponse.Builder responseBuilder = AuthResponse.builder()
                             .isRegister(true)
                             .jwtToken(jwtUtil.generateToken(jwtTokenData))
-                            .roles(Collections.singleton(request.getRole()));
+                            .role(request.getRole());
 
                     SpaceKeys detachedKeys;
                     boolean needCreateSpace;
@@ -97,16 +97,13 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
         UserDetailsImpl userDetails = userDetailsOpt.get();
         JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
 
-        Set<RoleType> roleTypes = userDetails.getRoles().stream()
-                .map(Role::getValue)
-                .collect(Collectors.toSet());
-
+        RoleType roleType = userDetails.getRole().getValue();
         AuthResponse.Builder responseBuilder = AuthResponse.builder()
                 .isRegister(true)
                 .jwtToken(jwtUtil.generateToken(jwtTokenData))
-                .roles(roleTypes);
+                .role(roleType);
 
-        if (RoleType.getMax(roleTypes).spaceOpsAccess()) {
+        if (roleType.spaceOpsAccess()) {
             responseBuilder.generatedSpaceKeys(spaceService.getKeys(userId));
         }
         return responseBuilder.build();

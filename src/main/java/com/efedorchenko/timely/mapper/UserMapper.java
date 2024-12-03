@@ -4,7 +4,7 @@ import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
-import com.efedorchenko.timely.exception.ServerException;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.repository.RoleRepository;
@@ -13,7 +13,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -29,9 +28,7 @@ public class UserMapper {
 
         user.setUsername(registerRequest.getUsername());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
-        Set<Role> roles = Set.of(this.getRole(registerRequest.getRole()));
-        user.setRoles(roles);
+        user.setRole(this.getRole(registerRequest.getRole()));
 
         return user;
     }

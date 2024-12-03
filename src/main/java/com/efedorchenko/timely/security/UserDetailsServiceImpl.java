@@ -2,7 +2,7 @@ package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
-import com.efedorchenko.timely.exception.ServerException;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.repository.RoleRepository;
@@ -39,7 +39,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Role role = roleRepository.findByValue(roleType)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR14.apply(roleType));
 
-        userDetails.addRole(role);
+        userDetails.setRole(role);
         userDetailsRepository.save(userDetails);
     }
 }

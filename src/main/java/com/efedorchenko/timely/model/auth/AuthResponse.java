@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.Set;
-
 @Getter
 @ToString
 @Builder(builderClassName = "Builder")
@@ -24,7 +22,8 @@ public class AuthResponse {
     @ToString.Exclude
     private final String jwtToken;
 
-    private final Set<RoleType> roles;
+    @Nullable
+    private final RoleType role;
 
     @Nullable
     private final SpaceKeys generatedSpaceKeys;
