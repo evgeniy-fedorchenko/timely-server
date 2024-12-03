@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.validation;
 
+import com.efedorchenko.timely.exception.ErrorCode;
 import com.efedorchenko.timely.exception.ServerException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -53,7 +54,7 @@ public class CurrentDatesValidator implements ConstraintValidator<CurrentDatesRa
             failWithMessage(context, FIELD_NOT_FOUND_MESS_PATTERN
                     .formatted(startFieldName, endFieldName, value.getClass().getName()));
         } catch (Exception ex) {
-            throw new ServerException(FAILED_UNKNOWN, ex);
+            throw new ServerException(ErrorCode.VALIDATION, FAILED_UNKNOWN, ex);
         }
         return false;
     }

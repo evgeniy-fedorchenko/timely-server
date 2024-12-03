@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.mapper;
 
 import com.efedorchenko.timely.entity.UserDataEntity;
-import com.efedorchenko.timely.exception.ServerException;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.model.data.UserDataDto;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.stereotype.Component;
@@ -25,9 +25,7 @@ public class MapperFactory {
         try {
             return ((AbstractMapper<E, D>) mapperMap.get(userDataType));
         } catch (ClassCastException cce) {
-            String errMess = "Could not get concrete UserDataMapper in factory from type [%s], available only [%s]. Ex: %s"
-                    .formatted(userDataType, mapperMap.toString(), cce.getMessage());
-            throw new ServerException(errMess, cce);
+            throw ExceptionTemplates.SVR_VAR12.apply(userDataType, mapperMap, cce);
         }
     }
 }

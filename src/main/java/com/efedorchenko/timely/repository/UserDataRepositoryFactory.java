@@ -2,7 +2,7 @@ package com.efedorchenko.timely.repository;
 
 import com.efedorchenko.timely.entity.EntityType;
 import com.efedorchenko.timely.entity.UserDataEntity;
-import com.efedorchenko.timely.exception.ServerException;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.stereotype.Component;
 
@@ -25,13 +25,7 @@ public class UserDataRepositoryFactory {
                     repositoryMap.put(userDataType, repository);
                     break;
                 }
-                throw new ServerException(("Some repository extending '%s<? extends %s>' does not have an " +
-                        "associated entity class. Ensure the repository class is annotated with [%s]")
-                        .formatted(
-                                UserDataRepository.class.getName(),
-                                UserDataEntity.class.getName(),
-                                EntityType.class.getName())
-                );
+                throw ExceptionTemplates.SVR_VAR10.get();
             }
         }
     }
@@ -41,9 +35,7 @@ public class UserDataRepositoryFactory {
         try {
             return ((UserDataRepository<E>) repositoryMap.get(userDataType));
         } catch (ClassCastException cce) {
-            String errMess = "Could not get concrete UserDataRepository in factory from type [%s], available only [%s]. Ex: %s"
-                    .formatted(userDataType, repositoryMap.toString(), cce.getMessage());
-            throw new ServerException(errMess, cce);
+            throw ExceptionTemplates.SVR_VAR11.apply(userDataType, repositoryMap, cce);
         }
     }
 }

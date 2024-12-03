@@ -30,19 +30,20 @@ public class AuthResponse {
     private final SpaceKeys generatedSpaceKeys;
 
     @Nullable
-    private final AuthFailReason reason;
+    private final AuthErrorCode errorCode;
 
     @Nullable
     private final String errorMessage;
 
-    public static AuthResponse failWith(AuthFailReason authFailReason) {
+    public static AuthResponse failWith(AuthErrorCode authErrorCode) {
         return new AuthResponse(
                 false,
                 null,
                 null,
                 null,
-                authFailReason,
-                authFailReason.getDescription()
+                null,
+                authErrorCode,
+                authErrorCode.getDescription()
         );
     }
 }

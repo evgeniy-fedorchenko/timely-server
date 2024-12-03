@@ -33,20 +33,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Transactional
     public void addRole(RoleType roleType, UUID userId) {
-        UserDetailsImpl userDetails = userDetailsRepository.findById(userId).orElseThrow(() -> {
-            String roleEntity = roleRepository.findByValue(roleType)
-                    .map(Role::toString)
-                    .orElse("role entity not found");
-            String errMess = "User not found with id [%s] for add role: [%s] (role entity: [%s]), please check why he was authorized"
-                    .formatted(userId.toString(), roleType, roleEntity);
-            return new ServerException(errMess);
-        });
+        UserDetailsImpl userDetails = userDetailsRepository.findById(userId)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR13.apply(userId, roleType));
 
-        Role role = roleRepository.findByValue(roleType).orElseThrow(() -> {
-            String errMess = "Role [%s] not found for add to user: [%s], available roles only [%s]. Please check how validation allowed this type"
-                    .formatted(roleType, userDetails.toString(), roleRepository.getValues());
-            return new ServerException(errMess);
-        });
+        Role role = roleRepository.findByValue(roleType)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR14.apply(roleType));
 
         userDetails.addRole(role);
         userDetailsRepository.save(userDetails);

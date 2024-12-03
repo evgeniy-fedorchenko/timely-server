@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum AuthFailReason {
+public enum AuthErrorCode {
 
     ALREADY_REGISTERED(HttpStatus.CONFLICT, "User already registered (username already exists)"),
     UNREGISTERED(HttpStatus.UNAUTHORIZED, "Unknown user"),

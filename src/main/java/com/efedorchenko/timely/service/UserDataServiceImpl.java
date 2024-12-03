@@ -55,9 +55,8 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         CompletableFuture.runAsync(() -> {
             UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataType);
             repository.findById(dataId).ifPresentOrElse(data -> {
-                if (data.getUser().getId() != userId) {
-                    log.warn("UserDataObject [{}] does not match UserEntity with id [{}] for deleting", dataId, userId);
-                    return;
+                if (!userId.equals(data.getUser().getId())) {
+                    throw ExceptionTemplates.BNS_VAR6.apply(dataId, userId);
                 }
                 repository.deleteById(dataId);
 
@@ -96,19 +95,14 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         UserDataDto newData = modifyingData.getNewData();
         Long dataId = newData.getId();
         if (dataId == null) {
-            String errMess = "Cannot modify userData because data id is null. Provided data: [%s]"
-                    .formatted(modifyingData.toString());
-            throw new IllegalArgumentException(errMess);
+            throw ExceptionTemplates.BNS_VAR7.apply(modifyingData);
         }
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(newData.getType());
-        UserDataEntity dataEntity = repository.findById(dataId).orElseThrow(() ->
-                new EntityNotFoundException("User data [%s] for modifying is not found".formatted(modifyingData))
-        );
+        UserDataEntity dataEntity = repository.findById(dataId)
+                .orElseThrow(() -> ExceptionTemplates.BNS_VAR8.apply(modifyingData));
 
         if (!modifyingData.getModifyingUserId().equals(dataEntity.getUser().getId())) {
-            String errMess = "User data found [%s], but owner id does not equal with modifyingUserId [%s]"
-                    .formatted(dataEntity, modifyingData.getModifyingUserId());
-            throw new IllegalArgumentException(errMess);
+            throw ExceptionTemplates.BNS_VAR9.apply(dataEntity, modifyingData.getModifyingUserId());
         }
 
         CompletableFuture.runAsync(() -> {

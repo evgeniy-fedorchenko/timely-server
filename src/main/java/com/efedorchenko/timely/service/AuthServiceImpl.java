@@ -7,7 +7,7 @@ import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.UserMapper;
 import com.efedorchenko.timely.model.SpaceKeys;
-import com.efedorchenko.timely.model.auth.AuthFailReason;
+import com.efedorchenko.timely.model.auth.AuthErrorCode;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
@@ -43,13 +43,13 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         return userDetailsRepository.findByUsername(request.getUsername())
-                .map(ignored -> AuthResponse.failWith(AuthFailReason.ALREADY_REGISTERED))
+                .map(ignored -> AuthResponse.failWith(AuthErrorCode.ALREADY_REGISTERED))
                 .orElseGet(() -> {
 
                     String spaceKey = request.getSpaceKey();
                     Space findedSpace = spaceService.findSpace(spaceKey, request.getRole());
                     if (spaceKey != null && findedSpace == null) {
-                        return AuthResponse.failWith(AuthFailReason.SPACE_NOT_FOUND);
+                        return AuthResponse.failWith(AuthErrorCode.SPACE_NOT_FOUND);
                     }
                     UUID primaryKey = UUID.randomUUID();
                     UserDetailsImpl userDetails = userMapper.toUserDetailsImpl(primaryKey, request);
@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                     boolean needCreateSpace;
                     if (request.getCreatingSpace() != null) {
                         if (request.getRole() != RoleType.CREATOR) {
-                            return AuthResponse.failWith(AuthFailReason.SPACE_CREATION_PROHIBITED);
+                            return AuthResponse.failWith(AuthErrorCode.SPACE_CREATION_PROHIBITED);
                         }
                         needCreateSpace = true;
                         detachedKeys = spaceService.createDetachedKeys();
@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
     public AuthResponse login(UUID userId) {
         Optional<UserDetailsImpl> userDetailsOpt = userDetailsRepository.findById(userId);
         if (userDetailsOpt.isEmpty()) {
-            return AuthResponse.failWith(AuthFailReason.UNREGISTERED);
+            return AuthResponse.failWith(AuthErrorCode.UNREGISTERED);
         }
         UserDetailsImpl userDetails = userDetailsOpt.get();
         JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);

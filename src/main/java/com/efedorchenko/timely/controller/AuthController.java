@@ -3,7 +3,7 @@ package com.efedorchenko.timely.controller;
 import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.model.auth.AuthFailReason;
+import com.efedorchenko.timely.model.auth.AuthErrorCode;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.service.AuthService;
@@ -55,8 +55,8 @@ public class AuthController {
         if (response.isRegister()) {
             return ResponseEntity.ok(response);
         } else {
-            HttpStatus status = Optional.ofNullable(response.getReason())
-                    .map(AuthFailReason::getHttpStatus)
+            HttpStatus status = Optional.ofNullable(response.getErrorCode())
+                    .map(AuthErrorCode::getHttpStatus)
                     .orElse(HttpStatus.BAD_REQUEST);
             return ResponseEntity.status(status).body(response);
         }

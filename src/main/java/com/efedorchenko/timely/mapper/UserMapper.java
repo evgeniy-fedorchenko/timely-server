@@ -53,10 +53,7 @@ public class UserMapper {
     }
 
     private Role getRole(RoleType roleType) {
-        return roleRepository.findByValue(roleType).orElseThrow(() -> {
-            String errMess = "Role [%s] does not exist. There are only [%s]. Please check how validation allowed this type"
-                    .formatted(roleType, roleRepository.getValues());
-            return new ServerException(errMess);
-        });
+        return roleRepository.findByValue(roleType)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR14.apply(roleType));
     }
 }
