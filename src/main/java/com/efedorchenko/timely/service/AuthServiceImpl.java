@@ -1,6 +1,5 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
@@ -19,13 +18,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 @Log
 @Service
@@ -56,6 +52,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
 
                     JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
                     AuthResponse.Builder responseBuilder = AuthResponse.builder()
+                            .userId(primaryKey)
                             .isRegister(true)
                             .jwtToken(jwtUtil.generateToken(jwtTokenData))
                             .role(request.getRole());
@@ -99,6 +96,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
 
         RoleType roleType = userDetails.getRole().getValue();
         AuthResponse.Builder responseBuilder = AuthResponse.builder()
+                .userId(userDetails.getId())
                 .isRegister(true)
                 .jwtToken(jwtUtil.generateToken(jwtTokenData))
                 .role(roleType);

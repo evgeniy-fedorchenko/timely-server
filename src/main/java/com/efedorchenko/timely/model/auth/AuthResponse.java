@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @Getter
 @ToString
 @Builder(builderClassName = "Builder")
@@ -17,6 +19,9 @@ import lombok.ToString;
 public class AuthResponse {
 
     private final boolean isRegister;
+
+    @Nullable
+    private final UUID userId;
 
     @Nullable
     @ToString.Exclude
