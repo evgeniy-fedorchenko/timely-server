@@ -1,5 +1,7 @@
 package com.efedorchenko.timely.exception;
 
+import lombok.Getter;
+
 /**
  * Ошибки в работе сервера:
  * <lu>
@@ -8,14 +10,19 @@ package com.efedorchenko.timely.exception;
  * </lu>
  * и т.д, в идеальном мире это исключение не должно возникать никогда
  */
+@Getter
 public class ServerException extends RuntimeException {
 
-    public ServerException(String message, Throwable cause) {
+    private final ErrorCode errorCode;
+
+    public ServerException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
+        this.errorCode = errorCode;
     }
 
-    public ServerException(String message) {
+    public ServerException(ErrorCode errorCode, String message) {
         super(message);
+        this.errorCode = errorCode;
     }
 
 }

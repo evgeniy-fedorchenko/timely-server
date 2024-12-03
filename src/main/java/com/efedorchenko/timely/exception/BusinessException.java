@@ -1,5 +1,7 @@
 package com.efedorchenko.timely.exception;
 
+import lombok.Getter;
+
 /**
  * Исключения бизнес-логики:
  * <lu>
@@ -8,10 +10,18 @@ package com.efedorchenko.timely.exception;
  * </lu>
  * и т.д.
  */
+@Getter
 public class BusinessException extends RuntimeException {
 
-    public BusinessException(String message, Throwable cause) {
+    private final ErrorCode errorCode;
+
+    public BusinessException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
+        this.errorCode = errorCode;
     }
 
+    public BusinessException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
 }
