@@ -4,11 +4,15 @@ import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.logging.Log.Ignore.Mode;
 import jakarta.annotation.Nullable;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +27,7 @@ public class TimelyExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .exName(ex.getClass().getSimpleName())
                 .sourceExName(getSourceExName(ex))
-                .errorCode(ErrorCode.BUSINESS.getRawCode())
+                .errorCode(ex.getErrorCode().getRawCode())
                 .errorMessage(ex.getMessage())
                 .build();
 
@@ -36,7 +40,7 @@ public class TimelyExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .exName(ex.getClass().getSimpleName())
                 .sourceExName(getSourceExName(ex))
-                .errorCode(ErrorCode.SERVER.getRawCode())
+                .errorCode(ex.getErrorCode().getRawCode())
                 .errorMessage(ex.getMessage())
                 .build();
 
@@ -45,18 +49,25 @@ public class TimelyExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleNotValidArgumentEx(MethodArgumentNotValidException ex) {
-        List<ArgInvalidDetails> details = ex.getFieldErrors().stream()
-                .map(ArgInvalidDetails::new)
-                .toList();
 
+        List<String> dataViolations = ex.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .exName(ex.getClass().getSimpleName())
                 .errorCode(ErrorCode.VALIDATION.getRawCode())
                 .errorMessage("Validation failed")
-                .details(details)
+                .details(String.join(" | ", dataViolations))
                 .build();
 
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler({ AuthorizationDeniedException.class,
+            AccessDeniedException.class,
+            AuthenticationException.class })
+    public ResponseEntity<?> handleAuthException(Exception ex) throws Exception {
+        throw ex;   // Not handle, only standard logging
     }
 
     @ExceptionHandler(Exception.class)
