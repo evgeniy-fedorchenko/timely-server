@@ -52,7 +52,7 @@ public class LogMethod {
         }
 
         Log logAnnotation = Optional.ofNullable(method.getAnnotation(Log.class)).orElse(log);
-        LogAnnotationSupport logSupport = new LogAnnotationSupport(method, logAnnotation);
+        LogAnnotationSupport logSupport = new LogAnnotationSupport(logAnnotation, method);
 
         Logger logger = LoggerFactory.getLogger(method.getDeclaringClass().getName() + "." + method.getName());
         boolean enabledForLevel = logger.isEnabledForLevel(logSupport.getArgsLevel());

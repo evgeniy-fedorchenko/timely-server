@@ -8,16 +8,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 class LogAnnotationSupport {
 
     private static final Ignore.Mode[] DEFAULT_MODES
             = new Ignore.Mode[]{ Ignore.Mode.COMPLETION };
-
-    private final Function<Method, Ignore> ignoreAnnotationSupplier = method ->
-            Optional.ofNullable(method.getAnnotation(Ignore.class))
-                    .orElseGet(() -> method.getDeclaringClass().getAnnotation(Ignore.class));
 
     private final Log logAnnotation;
 
@@ -26,9 +21,10 @@ class LogAnnotationSupport {
 
     private final List<Ignore.Mode> methodIgnoreModes;
 
-    LogAnnotationSupport(Log logAnnotation, @Nullable Ignore ignoreMethodAnnotation) {
+    LogAnnotationSupport(Log logAnnotation, Method method) {
         this.logAnnotation = logAnnotation;
-        this.ignoreMethodAnnotation = ignoreMethodAnnotation;
+        this.ignoreMethodAnnotation = Optional.ofNullable(method.getAnnotation(Ignore.class))
+                .orElseGet(() -> method.getDeclaringClass().getAnnotation(Ignore.class));
 
         if (ignoreMethodAnnotation == null) {
             this.methodIgnoreModes = Collections.emptyList();
@@ -37,13 +33,6 @@ class LogAnnotationSupport {
                     ? Arrays.asList(ignoreMethodAnnotation.value())
                     : Arrays.asList(ignoreMethodAnnotation.mode());
         }
-    }
-
-    LogAnnotationSupport(Method method, Log logAnnotation) {
-        Ignore maybyIgnore = Optional.ofNullable(method.getAnnotation(Ignore.class))
-                .orElseGet(() -> method.getDeclaringClass().getAnnotation(Ignore.class));
-
-        this(logAnnotation, maybyIgnore);
     }
 
     boolean needsIgnoreInvoke() {
