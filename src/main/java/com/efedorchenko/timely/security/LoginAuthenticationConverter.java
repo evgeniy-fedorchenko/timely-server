@@ -27,7 +27,7 @@ public class LoginAuthenticationConverter implements AuthenticationConverter {
 
     public LoginAuthenticationConverter(Validator validator, ObjectMapper objectMapper) {
         this.validator = validator;
-        this.objectMapper = new ObjectMapper(objectMapper.getFactory());
+        this.objectMapper = objectMapper;
     }
 
     @Override
