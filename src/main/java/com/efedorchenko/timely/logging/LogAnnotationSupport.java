@@ -3,14 +3,21 @@ package com.efedorchenko.timely.logging;
 import com.efedorchenko.timely.logging.Log.Ignore;
 import jakarta.annotation.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 class LogAnnotationSupport {
 
     private static final Ignore.Mode[] DEFAULT_MODES
             = new Ignore.Mode[]{ Ignore.Mode.COMPLETION };
+
+    private final Function<Method, Ignore> ignoreAnnotationSupplier = method ->
+            Optional.ofNullable(method.getAnnotation(Ignore.class))
+                    .orElseGet(() -> method.getDeclaringClass().getAnnotation(Ignore.class));
 
     private final Log logAnnotation;
 
@@ -32,8 +39,11 @@ class LogAnnotationSupport {
         }
     }
 
-    LogAnnotationSupport(Log logAnnotation) {
-        this(logAnnotation, null);
+    LogAnnotationSupport(Method method, Log logAnnotation) {
+        Ignore maybyIgnore = Optional.ofNullable(method.getAnnotation(Ignore.class))
+                .orElseGet(() -> method.getDeclaringClass().getAnnotation(Ignore.class));
+
+        this(logAnnotation, maybyIgnore);
     }
 
     boolean needsIgnoreInvoke() {

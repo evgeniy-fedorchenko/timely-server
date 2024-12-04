@@ -52,9 +52,7 @@ public class LogMethod {
         }
 
         Log logAnnotation = Optional.ofNullable(method.getAnnotation(Log.class)).orElse(log);
-        LogAnnotationSupport logSupport = Optional.ofNullable(method.getAnnotation(Ignore.class))
-                .map(ignoreAnnotation -> new LogAnnotationSupport(logAnnotation, ignoreAnnotation))
-                .orElseGet(() -> new LogAnnotationSupport(logAnnotation));
+        LogAnnotationSupport logSupport = new LogAnnotationSupport(method, logAnnotation);
 
         Logger logger = LoggerFactory.getLogger(method.getDeclaringClass().getName() + "." + method.getName());
         boolean enabledForLevel = logger.isEnabledForLevel(logSupport.getArgsLevel());
@@ -73,7 +71,6 @@ public class LogMethod {
             doLogResult(t, logger, logSupport);
             throw t;
         }
-
 
         if (result instanceof CompletableFuture<?> future) {
             future.whenComplete((res, ex) -> doLogResult((ex != null ? ex : res), logger, logSupport));
@@ -98,19 +95,18 @@ public class LogMethod {
 
             List<Object> loggableArgs = new ArrayList<>();
             IntStream.range(0, args.length).forEach(idx -> {
-                        boolean isNotIgnoredParameter = Arrays.stream(sourceParams[idx].getAnnotations())
-                                .filter(a -> a.annotationType().equals(Ignore.class))
-                                .findFirst()
-                                .isEmpty();
-                        if (isNotIgnoredParameter) {
-                            loggableArgs.add(args[idx]);
-                        }
-                    }
-            );
+                boolean isNotIgnoredParameter = Arrays.stream(sourceParams[idx].getAnnotations())
+                        .filter(a -> a.annotationType().equals(Ignore.class))
+                        .findFirst()
+                        .isEmpty();
+                if (isNotIgnoredParameter) {
+                    loggableArgs.add(args[idx]);
+                }
+            });
             String params = loggableArgs.isEmpty()
                     ? EMPTY_STRING
                     : loggableArgs.stream()
-                    .map(Object::toString)
+                    .map(arg -> arg != null ? arg.toString() : "null")
                     .collect(Collectors.joining(", "));
 
             logger.atLevel(logSupport.getArgsLevel()).log(INPUT_PATTERN.formatted(params));
