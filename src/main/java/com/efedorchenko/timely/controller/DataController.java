@@ -50,11 +50,12 @@ public class DataController {
         }
     }
 
-    @DeleteMapping(path = "/{dataType}/{dataId}")
-    public void removeData(@AuthenticationPrincipal UUID userId,
+    @DeleteMapping(path = "/{clearableUserId}/{dataType}/{dataId}")
+    public void deleteData(@AuthenticationPrincipal UUID userId,
+                           @PathVariable UUID clearableUserId,
                            @PathVariable UserDataType dataType,
                            @PathVariable Long dataId) {
-        userDataService.deleteData(userId, dataType, dataId);
+        userDataService.deleteData(userId, clearableUserId, dataType, dataId);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -71,4 +72,3 @@ public class DataController {
         userDataService.changeData(userId, newData);
     }
 }
-

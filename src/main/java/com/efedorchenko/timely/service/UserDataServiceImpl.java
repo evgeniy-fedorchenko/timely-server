@@ -14,7 +14,6 @@ import com.efedorchenko.timely.repository.UserDataRepository;
 import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -89,7 +88,12 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
 
     @Override
     @Transactional
-    public void deleteData(UUID userId, UserDataType userDataType, Long dataId) {
+    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
+    public void deleteData(UUID userId, UUID clearableUserId, UserDataType userDataType, Long dataId) {
+        if (!this.haveAccessToSpaceOf(userId, clearableUserId)) {
+            throw ExceptionTemplates.BNS_VAR5.apply(userId, clearableUserId);
+        }
+
         CompletableFuture.runAsync(() -> {
             UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataType);
             repository.findById(dataId).ifPresentOrElse(data -> {
@@ -98,37 +102,16 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
                 }
                 repository.deleteById(dataId);
 
-            }, () -> log.warn("UserDataObject [{}] not found for deleting", userId));
-
-        }, executorOfVirtual);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CompletableFuture<Collection<UserDataDto>> getRange(
-            UUID userId, DataRangeRequest dataRangeRequest, UserDataType dataType) {
-
-        return CompletableFuture.supplyAsync(() -> {
-            int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStart());
-            int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEnd());
-            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
-            List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
-
-            if (foundEntities.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            ArrayList<UserDataDto> dtos = new ArrayList<>();
-            for (UserDataEntity entity : foundEntities) {
-                dtos.add(userDataMapper.map(entity));
-            }
-            return dtos;
+//                Без исключений, потому что данные, которые нужно удалить, итак не существуют
+//                Клиент просто должен обновить данные
+            }, () -> log.warn("Data of userID [{}] not found for deleting", userId));
 
         }, executorOfVirtual);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void changeData(UUID userId, UserDataModifyDto modifyingData) {
         UserDataDto newData = modifyingData.getNewData();
         Long dataId = newData.getId();
@@ -148,7 +131,27 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
             repository.save(updatedDataEntity);
         }, executorOfVirtual);
     }
-}
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<UserDataDto> getRange(DataRangeRequest dataRangeRequest, UserDataType dataType) {
+        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStart());
+        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEnd());
+        UUID userId = dataRangeRequest.getRequestedUserId();
+
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
+        List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
+
+        if (foundEntities.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<UserDataDto> dtos = new ArrayList<>();
+        for (UserDataEntity entity : foundEntities) {
+            dtos.add(userDataMapper.map(entity));
+        }
+        return dtos;
+    }
 
     private boolean haveAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {
         RoleType initiatorRole = userDetailsRepository.findRoleById(initiatorId)
