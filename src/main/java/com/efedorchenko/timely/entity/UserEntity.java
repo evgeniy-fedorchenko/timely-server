@@ -57,11 +57,11 @@ public class UserEntity implements Persistable<UUID> {
     @JoinColumn(name = "consist_in_space_id")
     private Space consistsInSpace;
 
-    @NotNull
+    @Nullable
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
 
-    @NotNull
+    @Nullable
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fine> fines;
 
