@@ -11,7 +11,6 @@ import com.efedorchenko.timely.service.UserDataService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -60,14 +58,12 @@ public class DataController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(path = "/{dataType}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public CompletableFuture<Collection<UserDataDto>> getRange(@AuthenticationPrincipal UUID userId,
-                                                               @RequestBody @Valid DataRangeRequest dataRangeRequest,
-                                                               @PathVariable UserDataType dataType) {
-        return userDataService.getRange(userId, dataRangeRequest, dataType);
+    public Collection<UserDataDto> getRange(@RequestBody @Valid DataRangeRequest dataRangeRequest,
+                                            @PathVariable UserDataType dataType) {
+        return userDataService.getRange(dataRangeRequest, dataType);
     }
 
     @PatchMapping(consumes = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void editData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataModifyDto newData) {
         userDataService.changeData(userId, newData);
     }
