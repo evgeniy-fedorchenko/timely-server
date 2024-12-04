@@ -42,8 +42,12 @@ public class DataController {
     private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public void addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
-        userDataService.addData(userId, userDataDto);
+    public UserDataDto addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
+        if (userDataDto.getToUserId() == null) {
+            return userDataService.addData(userId, userDataDto);
+        } else {
+            return userDataService.addDataToOtherUser(userId, userDataDto);
+        }
     }
 
     @DeleteMapping(path = "/{dataType}/{dataId}")

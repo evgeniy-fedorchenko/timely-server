@@ -9,9 +9,9 @@ import java.util.concurrent.CompletableFuture;
 
 public interface UserDataService<D, RANGE_REQ> {
 
-    void addData(UUID userId, D userDataDto);
+    D addDataToOtherUser(UUID initiatorIdOfAdding, D userDataDto);
 
-    void deleteData(UUID userId, UserDataType userDataType, Long dataId);
+    D addData(UUID userId, D userDataDto);
 
     CompletableFuture<Collection<D>> getRange(
             UUID userId, RANGE_REQ dataRangeRequest, UserDataType dataType);

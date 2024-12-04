@@ -2,18 +2,22 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.UserDataEntity;
 import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.UserDataMapper;
+import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.model.data.DataRangeRequest;
 import com.efedorchenko.timely.model.data.UserDataDto;
 import com.efedorchenko.timely.model.data.UserDataModifyDto;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.repository.UserDataRepository;
 import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
+import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,19 +38,53 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     private final ExecutorService executorOfVirtual;
     private final UserDataMapper userDataMapper;
     private final UserEntityRepository userEntityRepository;
+    private final UserDetailsRepository userDetailsRepository;
     private final UserDataRepositoryFactory repositoryFactory;
+
+    /**
+     * Добавить объект {@link UserDataDto} какому-то юзеру, не тому кто авторизован в данный момент
+     * <p>
+     * Юзер, которому нужно добавить объект (вернее его {@code UUID userId}) берется из
+     * {@link UserDataDto#getToUserId()}. Перед тем как передать данные в метод добавления
+     * нового объекта к юзеру, выполняется проверка прав у инициатора - юзера, который
+     * авторизован в данный момент и который пытается кому-то добавить новый объект данных.
+     * <lu>
+     * <li>Если авторизованный юзер имеет роль {@link RoleType#MODERATOR} - ему разрешается добавить данные
+     * юзерам без ограничений</li>
+     * <li>Если авторизованный юзер имеет роль {@link RoleType#BOSS} или {@link RoleType#CREATOR}, то ему
+     * разрешается добавлять данные только к юзерам из своего пространства</li>
+     * <li>Юзерам с ролью {@link RoleType#WORKER} не разрешается выполнять этот метод. Такой юзер может
+     * добавлять данные только себе </li>
+     * </lu>
+     *
+     * @param initiatorIdOfAdding авторизованный в данный момент юзер, который
+     *                            инициирует добавление каких-то данных какому-то юзеру
+     * @param userDataDto         данные объекта, которые нужно добавить какому-то юзеру.
+     *                            Кому именно - берется из {@code userDataDto.getToUserId()}
+     */
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
+    public UserDataDto addDataToOtherUser(UUID initiatorIdOfAdding, UserDataDto userDataDto) {
+        UUID toUserId = userDataDto.getToUserId();
+        if (toUserId == null) {
+            throw ExceptionTemplates.BNS_VAR1.get();
+        }
+        if (!this.haveAccessToSpaceOf(initiatorIdOfAdding, toUserId)) {
+            throw ExceptionTemplates.BNS_VAR5.apply(initiatorIdOfAdding, toUserId);
+        }
+        return this.addData(toUserId, userDataDto);
+    }
 
     @Override
     @Transactional
-    public void addData(UUID userId, UserDataDto userDataDto) {
-        CompletableFuture.runAsync(() -> {
-            UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
-            UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
+    public UserDataDto addData(UUID userId, UserDataDto userDataDto) {
+        UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
+        UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
 
-            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
-            repository.save(userDataEntity);
-
-        }, executorOfVirtual);
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
+        UserDataEntity savedDataEntity = repository.save(userDataEntity);
+        return userDataMapper.map(savedDataEntity);
     }
 
     @Override
@@ -111,3 +149,19 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         }, executorOfVirtual);
     }
 }
+
+    private boolean haveAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {
+        RoleType initiatorRole = userDetailsRepository.findRoleById(initiatorId)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR2.apply(initiatorId))
+                .getValue();
+
+        if (initiatorRole == RoleType.MODERATOR) {
+            return true;
+        }
+        Long initiatorSpaceId = userEntityRepository.findSpaceIdWhereConsist(initiatorId)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR3.apply(initiatorId));
+        Long addableUserSpaceId = userEntityRepository.findSpaceIdWhereConsist(userIdToCompareSpace)
+                .orElseThrow(() -> ExceptionTemplates.BNS_VAR4.apply(userIdToCompareSpace, initiatorId));
+
+        return initiatorSpaceId.equals(addableUserSpaceId);
+    }}
