@@ -30,7 +30,7 @@ public class AtLeastOneNotNullValidator implements ConstraintValidator<AtLeastOn
                 Object fieldValue = field.get(value);
 
 //                true - только если поле не null и не пустая строка
-                if (fieldValue instanceof String s && s.isEmpty()) {
+                if (fieldValue == null || fieldValue instanceof String s && s.isEmpty()) {
                     continue;
                 }
                 return true;
@@ -55,6 +55,6 @@ public class AtLeastOneNotNullValidator implements ConstraintValidator<AtLeastOn
     private void setErrMessInContext(ConstraintValidatorContext context, String... fieldNames) {
         String mess = context.getDefaultConstraintMessageTemplate().formatted(Arrays.asList(fieldNames));
         context.disableDefaultConstraintViolation();
-        context.buildConstraintViolationWithTemplate(mess);
+        context.buildConstraintViolationWithTemplate(mess).addConstraintViolation();
     }
 }
