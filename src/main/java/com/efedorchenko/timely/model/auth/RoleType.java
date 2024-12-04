@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -27,18 +26,6 @@ public enum RoleType {
                 .map(GrantedAuthority::getAuthority)
                 .map(RoleType::valueOf)
                 .toList();
-    }
-
-    public static RoleType getMax(Collection<RoleType> roleTypes) {
-        if (roleTypes.isEmpty()) {
-            return RoleType.WORKER;
-        }
-        if (roleTypes.size() == 1) {
-            return roleTypes.iterator().next();
-        }
-        return roleTypes.stream()
-                .max(Comparator.comparingInt(RoleType::getWeight))
-                .orElse(null);
     }
 
     public boolean spaceOpsAccess() {
