@@ -18,6 +18,8 @@ import lombok.ToString;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "roles", schema = "security")
 @Getter
@@ -25,7 +27,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Role {
+public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

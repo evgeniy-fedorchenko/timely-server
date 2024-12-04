@@ -1,10 +1,15 @@
-<config
-        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-        xmlns='http://www.ehcache.org/v3'
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
 
     <cache alias="roles">
         <key-type>com.efedorchenko.timely.model.auth.RoleType</key-type>
         <value-type>com.efedorchenko.timely.entity.Role</value-type>
+        <resources>
+            <heap>10</heap>
+            <offheap unit="MB">10</offheap>
+        </resources>
     </cache>
 </config>
