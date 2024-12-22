@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class UserDataModifyDto {
     @NotNull
     private final UUID modifyingUserId;
 
+    @Valid
     @NotNull
     private final UserDataDto newData;
 

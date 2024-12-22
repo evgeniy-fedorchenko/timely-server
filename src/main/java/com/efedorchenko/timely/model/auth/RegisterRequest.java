@@ -3,6 +3,7 @@ package com.efedorchenko.timely.model.auth;
 import com.efedorchenko.timely.model.SpaceCreateDto;
 import com.efedorchenko.timely.model.validation.AtLeastOneNotNull;
 import com.efedorchenko.timely.model.validation.Constant;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -44,6 +45,7 @@ public class RegisterRequest {
     @Positive
     private final int rate;
 
+    @Valid
     @Nullable
     private final SpaceCreateDto creatingSpace;
 

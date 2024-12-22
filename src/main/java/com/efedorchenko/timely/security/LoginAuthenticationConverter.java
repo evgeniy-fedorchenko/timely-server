@@ -1,9 +1,12 @@
 package com.efedorchenko.timely.security;
 
+import com.efedorchenko.timely.exception.BusinessException;
+import com.efedorchenko.timely.exception.ErrorCode;
 import com.efedorchenko.timely.model.auth.AuthRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -42,7 +45,8 @@ public class LoginAuthenticationConverter implements AuthenticationConverter {
                     log.warn("Filed validate authentication data\nAuthentication data: {}\nIp: {}\nViolations: {}",
                             authRequest, request.getRemoteAddr(), violations);
                 }
-                throw new BadCredentialsException("Failed validate authentication data. Violations: " + violations);
+                throw new BusinessException(ErrorCode.VALIDATION,
+                        "Failed validate authentication data. Violations: " + violations);
             }
             return new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
 
@@ -51,7 +55,7 @@ public class LoginAuthenticationConverter implements AuthenticationConverter {
                 log.warn("Convert authentication data failed\nAuthentication data: [{}]\nIp: {}. Ex: {}",
                         authRequest, request.getRemoteAddr(), ioex.getMessage());
             }
-            throw new BadCredentialsException("Invalid authentication data");
+            throw new BusinessException(ErrorCode.VALIDATION, "Invalid authentication data");
         }
 
     }
