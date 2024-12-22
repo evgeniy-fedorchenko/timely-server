@@ -2,13 +2,14 @@ package com.efedorchenko.timely.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", access = AccessLevel.PROTECTED)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ErrorResponse {
 
