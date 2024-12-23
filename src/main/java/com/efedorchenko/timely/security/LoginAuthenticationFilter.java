@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.entity.UserDetailsImpl;
+import com.efedorchenko.timely.exception.BusinessException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,6 +74,12 @@ public class LoginAuthenticationFilter extends OncePerRequestFilter {
                 log.warn("Authentication failed. Ex: {}", ex.getMessage());
             }
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (BusinessException bex) {
+            // FIXME 23.12.2024 00:03: нужно тоже собирать тут ErrorResponse как в ехХендлере. Так как невозможно уже
+            //  тут перехватить исключение тем хендлером, то стоит вынести логику сборки ошибочных ответов в
+            //  отдельный сервис и юзать его в хендлере и тут
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(bex.getMessage());
         }
     }
 }
