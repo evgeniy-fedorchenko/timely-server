@@ -43,7 +43,7 @@ public class SecurityConfig {
         return http
                 .securityMatcher(EXCEPT_AUTH_MATCHER)
                 .authorizeHttpRequests(matcher -> matcher
-                        .requestMatchers("swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
+                        .requestMatchers("/swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
                         .requestMatchers("/actuator/**").hasRole(RoleType.MODERATOR.name())
                         .anyRequest().authenticated())
 
@@ -62,7 +62,7 @@ public class SecurityConfig {
         return http
                 .securityMatcher(ONLY_AUTH_MATCHER)
                 .authorizeHttpRequests(matcher -> matcher
-                        .requestMatchers("swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
+                        .requestMatchers("/swagger/**").hasRole(RoleType.MODERATOR.name())   // bean created only on dev profile
                         .requestMatchers("/actuator/**").hasRole(RoleType.MODERATOR.name())
                         .requestMatchers(BASE_PATH + "/auth/reg").permitAll()
                         .requestMatchers(BASE_PATH + "/auth/login").authenticated()
