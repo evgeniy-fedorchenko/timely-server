@@ -20,6 +20,12 @@ import java.util.function.Function;
 @Configuration
 public class ExecutorConfig {
 
+    /*
+    * Стандартный экзекутор Spring (виртуальный):          vbase-...
+    * Пользовательский виртуальный экзекутор:              vtly-999
+    * Пользовательский планировщик (платформенные потоки): sptly-999
+    */
+
     private static final String VIRTUAL_THREAD_PREFIX = "vtly-";   // virtual-timely-thread
     private static final String SCHEDULED_PLATFORM_THREAD_PREFIX = "sptly-";   // scheduled-platform-timely-thread
 

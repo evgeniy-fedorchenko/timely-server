@@ -2,6 +2,7 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.UserDataEntity;
 import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.UserDataMapper;
 import com.efedorchenko.timely.model.data.DataRangeRequest;
@@ -11,7 +12,6 @@ import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.repository.UserDataRepository;
 import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
 import com.efedorchenko.timely.repository.UserEntityRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -37,7 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = DataController.DATA_ENDPOINT)
 public class DataController {
 
-    public static final String DATA_ENDPOINT = ApplicationProperties.BASE_PATH + "/data";
+    static final String DATA_ENDPOINT = ApplicationProperties.BASE_PATH + "/data";
 
     private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
 
