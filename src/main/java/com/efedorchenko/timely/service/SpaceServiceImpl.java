@@ -57,7 +57,9 @@ public class SpaceServiceImpl implements SpaceService {
             Space space = spaceMapper.map(spaceCreateDto, spaceKeys, creator);
             spaceRepository.save(space);
 
+//            Создатель пространства состоит в своем же пространстве
             creator.setCreatedSpace(space);
+            creator.setConsistsInSpace(space);
             userEntityRepository.save(creator);
 
         }, executorOfVirtual);
