@@ -50,7 +50,7 @@ public class UserMapper {
     }
 
     private Role getRole(RoleType roleType) {
-        return roleRepository.findByValue(roleType)
+        return roleRepository.findByRoleType(roleType)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR14.apply(roleType));
     }
 }

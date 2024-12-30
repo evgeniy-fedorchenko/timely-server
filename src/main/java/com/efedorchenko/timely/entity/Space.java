@@ -47,7 +47,7 @@ public class Space {
     private String bossKey;
 
     @OneToOne
-    @JoinColumn(name = "who_created_user_id", nullable = false)
+    @JoinColumn(name = "creator_user_id", nullable = false)
     private UserEntity creator;
 
     @Nullable

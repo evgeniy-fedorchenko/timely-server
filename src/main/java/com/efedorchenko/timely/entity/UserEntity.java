@@ -3,7 +3,6 @@ package com.efedorchenko.timely.entity;
 import com.efedorchenko.timely.model.validation.Constant;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -12,14 +11,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Persistable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,21 +29,21 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserEntity implements Persistable<UUID> {
+public class UserEntity {
 
     @Id
     @EqualsAndHashCode.Include
     private UUID id;
 
     @NotNull
-    private String name;   // default constraint size = 255
+    private String name;
 
     @NotNull
     @Size(max = Constant.USER_POSITION_MAX_LEN)
     private String position;
 
-    @Column(nullable = false)
-    private int rate;
+    @Nullable
+    private Integer rate;
 
     @Nullable
     @OneToOne(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -64,14 +61,6 @@ public class UserEntity implements Persistable<UUID> {
     @Nullable
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fine> fines;
-
-    @Transient
-    private boolean isNew = true;
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
 
     @NotNull
     public List<Event> getEvents() {
@@ -97,9 +86,9 @@ public class UserEntity implements Persistable<UUID> {
         } else {
             this.fines = List.copyOf(fines);
         }
+    }
 
-
-    }   @Override
+    @Override
     public String toString() {
         return "UserEntity{id=%s, name='%s', position='%s', rate='%d', createdSpace=%s, consistsInSpace=%s, eventCont=%d, finesCont=%d}"
                 .formatted(id.toString(),

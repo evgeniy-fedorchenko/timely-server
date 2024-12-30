@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
         UserDetailsImpl userDetails = userDetailsOpt.get();
         JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
 
-        RoleType roleType = userDetails.getRole().getValue();
+        RoleType roleType = userDetails.getRole().getRoleType();
         AuthResponse.Builder responseBuilder = AuthResponse.builder()
                 .userId(userDetails.getId())
                 .isRegister(true)

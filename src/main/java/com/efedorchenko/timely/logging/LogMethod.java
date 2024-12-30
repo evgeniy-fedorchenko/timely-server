@@ -95,14 +95,15 @@ public class LogMethod {
 
             List<Object> loggableArgs = new ArrayList<>();
             IntStream.range(0, args.length).forEach(idx -> {
-                boolean isNotIgnoredParameter = Arrays.stream(sourceParams[idx].getAnnotations())
-                        .filter(a -> a.annotationType().equals(Ignore.class))
-                        .findFirst()
-                        .isEmpty();
-                if (isNotIgnoredParameter) {
-                    loggableArgs.add(args[idx]);
-                }
-            });
+                        boolean isNotIgnoredParameter = Arrays.stream(sourceParams[idx].getAnnotations())
+                                .filter(a -> a.annotationType().equals(Ignore.class))
+                                .findFirst()
+                                .isEmpty();
+                        if (isNotIgnoredParameter) {
+                            loggableArgs.add(args[idx]);
+                        }
+                    }
+            );
             String params = loggableArgs.isEmpty()
                     ? EMPTY_STRING
                     : loggableArgs.stream()

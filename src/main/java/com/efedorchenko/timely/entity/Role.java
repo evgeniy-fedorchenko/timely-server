@@ -34,10 +34,11 @@ public class Role implements Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(unique = true)
+
+    @Column(unique = true, columnDefinition = "security.role_type")
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private RoleType value;
+    @JdbcType(value = PostgreSQLEnumJdbcType.class)
+    private RoleType roleType;
 
     @Nullable
     private String description;

@@ -55,10 +55,11 @@ public class SpaceServiceImpl implements SpaceService {
         CompletableFuture.runAsync(() -> {
             UserEntity creator = userEntityRepository.findById(userId).orElseThrow();
             Space space = spaceMapper.map(spaceCreateDto, spaceKeys, creator);
+            spaceRepository.save(space);
 
+//            Создатель пространства состоит в своем же пространстве
             creator.setCreatedSpace(space);
             creator.setConsistsInSpace(space);
-            creator.setNew(false);
             userEntityRepository.save(creator);
 
         }, executorOfVirtual);

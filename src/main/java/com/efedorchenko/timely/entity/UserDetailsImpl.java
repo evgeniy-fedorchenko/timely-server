@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -16,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.domain.Persistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,7 +30,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
+public class UserDetailsImpl implements UserDetails {
 
     @Id
     @EqualsAndHashCode.Include
@@ -50,24 +48,15 @@ public class UserDetailsImpl implements UserDetails, Persistable<UUID> {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Transient
-    @ToString.Exclude
-    private boolean isNew = true;
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
-
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) {
             return AuthorityUtils.NO_AUTHORITIES;
         }
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getValue().name());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getRoleType().name());
         return Collections.singletonList(authority);
     }
 
     public boolean hasRole(RoleType roleType) {
-        return this.role.getValue().equals(roleType);
+        return this.role.getRoleType().equals(roleType);
     }
 }

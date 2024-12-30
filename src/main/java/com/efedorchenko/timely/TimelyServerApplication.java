@@ -1,10 +1,11 @@
 package com.efedorchenko.timely;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 
-@EnableCaching
+import java.util.Locale;
+
 @SpringBootApplication
 public class TimelyServerApplication {
 
@@ -12,4 +13,9 @@ public class TimelyServerApplication {
         SpringApplication.run(TimelyServerApplication.class, args);
     }
 
+    /** Для сообщений валидации */
+    @PostConstruct
+    public void init() {
+        Locale.setDefault(Locale.ENGLISH);
+    }
 }

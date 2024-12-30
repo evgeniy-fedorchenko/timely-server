@@ -47,16 +47,19 @@ public class RequestUidFilter extends OncePerRequestFilter implements Ordered {
             response.setHeader(RQUID, rquid);
 
             if (log.isDebugEnabled() && !this.isAsyncStarted(request) && !this.isAsyncDispatch(request)) {
-                log.debug("Start processing: uri [{}], ip: {}", request.getRequestURI(), request.getRemoteAddr());
+                log.debug("Start processing: uri [{}], ip: [{}]", request.getRequestURI(), request.getRemoteAddr());
             }
             filterChain.doFilter(request, response);
 
-            if (log.isDebugEnabled() && !this.isAsyncStarted(request) && !this.isAsyncDispatch(request)) {
-                log.debug("Finish processing: uri [{}], ip: {}", request.getRequestURI(), request.getRemoteAddr());
+            if (log.isDebugEnabled() && this.isAsyncStarted(request)) {
+                log.trace("Async processing: uri [{}], ip: [{}]", request.getRequestURI(), request.getRemoteAddr());
             }
 
+            if (log.isDebugEnabled() && !this.isAsyncStarted(request)) {
+                log.trace("Finish processing: uri [{}], ip: [{}]", request.getRequestURI(), request.getRemoteAddr());
+            }
         } catch (Throwable t) {
-            log.error("Error processing: uri [{}], ip: {}", request.getRequestURI(), request.getRemoteAddr(), t);
+            log.error("Error processing: uri [{}], ip: [{}]", request.getRequestURI(), request.getRemoteAddr(), t);
         } finally {
             MDC.clear();
         }

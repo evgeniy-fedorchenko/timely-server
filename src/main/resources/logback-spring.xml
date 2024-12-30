@@ -36,7 +36,7 @@
         <appender-ref ref="CONSOLE" />
     </root>
 
-    <!-- Логгеры для отладки SQL (требуются соответствующие свойста) -->
+    <!-- Логгеры для отладки SQL (требуются соответствующие свойства) -->
     <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
         <appender-ref ref="CONSOLE" />
     </logger>

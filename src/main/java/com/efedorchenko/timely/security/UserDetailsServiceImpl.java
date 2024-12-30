@@ -36,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserDetailsImpl userDetails = userDetailsRepository.findById(userId)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR13.apply(userId, roleType));
 
-        Role role = roleRepository.findByValue(roleType)
+        Role role = roleRepository.findByRoleType(roleType)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR14.apply(roleType));
 
         userDetails.setRole(role);
