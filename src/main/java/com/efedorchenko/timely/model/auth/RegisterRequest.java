@@ -3,7 +3,7 @@ package com.efedorchenko.timely.model.auth;
 import com.efedorchenko.timely.model.SpaceCreateDto;
 import com.efedorchenko.timely.model.validation.AtLeastOneNotNull;
 import com.efedorchenko.timely.model.validation.Constant;
-import jakarta.validation.constraints.Email;
+import com.efedorchenko.timely.model.validation.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
