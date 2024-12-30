@@ -13,8 +13,10 @@ import java.util.Set;
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
     @Cacheable(cacheNames = CacheConfig.ROLES_CACHE_NAME, unless = "#result == null")
-    Optional<Role> findByValue(RoleType value);
+    Optional<Role> findByRoleType(RoleType value);
 
-    @Query("SELECT r.value FROM Role r")
-    Set<RoleType> getValues();
+    @Query("SELECT r.roleType FROM Role r")
+    Set<RoleType> getRoleTypes();
+
+    boolean existsByRoleType(RoleType roleType);
 }
