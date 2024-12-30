@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="400" author="evgeniyf">
+        <preConditions>
+            <tableExists schemaName="users" tableName="users"/>
+        </preConditions>
+        <comment>Error if 'users.users' table is missing; skip if 'users.spaces' already exists</comment>
+    </changeSet>
+
+    <changeSet id="401" author="evgeniyf">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="users" tableName="spaces"/>
+            </not>
+        </preConditions>
+
+        <comment>Create table 'users.spaces' for entity 'Space'</comment>
+
+        <createTable schemaName="users" tableName="spaces">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_spaces"/>
+            </column>
+            <column name="name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="worker_key" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="boss_key" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator_user_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <!-- FK в spaces на юзера создателя пространства -->
+        <addForeignKeyConstraint baseColumnNames="creator_user_id"
+                                 baseTableName="spaces"
+                                 baseTableSchemaName="users"
+                                 constraintName="fk_spaces_on_creator_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"
+                                 referencedTableSchemaName="users"/>
+
+        <!-- FK в users на пространство, в котором юзер состоит (nullable) -->
+        <addForeignKeyConstraint baseColumnNames="consist_in_space_id"
+                                 baseTableName="users"
+                                 baseTableSchemaName="users"
+                                 constraintName="fk_users_on_consist_in_space"
+                                 referencedColumnNames="id"
+                                 referencedTableName="spaces"
+                                 referencedTableSchemaName="users"/>
+    </changeSet>
+
+</databaseChangeLog>

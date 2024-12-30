@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="200" author="evgeniyf">
+        <preConditions>
+            <tableExists schemaName="security" tableName="roles"/>
+        </preConditions>
+        <comment>Error if 'roles' table is missing; skip if 'user_details' already exists</comment>
+    </changeSet>
+
+    <changeSet id="201" author="evgeniyf">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="security" tableName="user_details"/>
+            </not>
+        </preConditions>
+
+        <comment>Create table 'security.user_details' for entity 'UserDetailsImpl'</comment>
+
+        <createTable schemaName="security" tableName="user_details">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_details"/>
+            </column>
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- FK на константу роли (WORKER, BOSS etc.) -->
+        <addForeignKeyConstraint baseColumnNames="role_id"
+                                 baseTableName="user_details"
+                                 baseTableSchemaName="security"
+                                 constraintName="fk_user_details_on_role"
+                                 referencedColumnNames="id"
+                                 referencedTableName="roles"
+                                 referencedTableSchemaName="security"/>
+
+    </changeSet>
+
+</databaseChangeLog>

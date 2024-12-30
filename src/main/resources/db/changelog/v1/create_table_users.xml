@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="300" author="evgeniyf">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="users" tableName="users"/>
+            </not>
+        </preConditions>
+
+        <comment>Create table 'users.users' for entity 'UserEntity'</comment>
+
+        <createTable schemaName="users" tableName="users">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rate" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="consist_in_space_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <!-- Имеется FK на таблицу spaces (определяется в changeSet.id=401),
+             показывает, в каком пространстве состоит юзер (fk nullable) -->
+    </changeSet>
+
+
+</databaseChangeLog>

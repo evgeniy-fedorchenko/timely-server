@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="600" author="evgeniyf">
+        <preConditions>
+            <tableExists schemaName="users" tableName="users"/>
+        </preConditions>
+        <comment>Error if 'users.users' table is missing; skip if 'data.fines' already exists</comment>
+    </changeSet>
+
+    <changeSet id="601" author="evgeniyf">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="data" tableName="fines"/>
+            </not>
+        </preConditions>
+
+        <comment>Create table 'data.fines' for entity 'Fine'</comment>
+
+    <createTable schemaName="data" tableName="fines">
+        <column autoIncrement="true" name="id" type="BIGINT">
+            <constraints nullable="false" primaryKey="true" primaryKeyName="pk_fines"/>
+        </column>
+        <column name="user_id" type="UUID">
+            <constraints nullable="false"/>
+        </column>
+        <column name="date" type="DATE">
+            <constraints nullable="false"/>
+        </column>
+        <column name="month_uid" type="INT">
+            <constraints nullable="false"/>
+        </column>
+        <column name="description" type="VARCHAR(128)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="amount" type="INT">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+        <createIndex indexName="fines_month_uid_user_id_idx" schemaName="data" tableName="fines">
+            <column name="month_uid"/>
+            <column name="user_id"/>
+        </createIndex>
+
+        <!-- FK на юзера, короткому принадлежит этот fine -->
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="fines"
+                                 baseTableSchemaName="data"
+                                 constraintName="FK_FINES_ON_USER"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"
+                                 referencedTableSchemaName="users"/>
+
+    </changeSet>
+
+</databaseChangeLog>
