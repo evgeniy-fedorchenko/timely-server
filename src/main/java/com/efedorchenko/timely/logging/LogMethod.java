@@ -16,6 +16,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -110,7 +111,7 @@ public class LogMethod {
             String params = loggableArgs.isEmpty()
                     ? EMPTY_STRING
                     : loggableArgs.stream()
-                    .map(Object::toString)
+                    .map(arg -> Objects.requireNonNullElse(arg, "null").toString())
                     .collect(Collectors.joining(", "));
 
             logger.atLevel(logSupport.getArgsLevel()).log(INPUT_PATTERN.formatted(params));
