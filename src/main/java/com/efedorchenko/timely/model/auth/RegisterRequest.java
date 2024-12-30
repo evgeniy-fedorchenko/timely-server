@@ -41,8 +41,9 @@ public class RegisterRequest {
     @Size(max = Constant.USER_POSITION_MAX_LEN)
     private final String position;
 
+    @Nullable
     @Positive
-    private final int rate;
+    private final Integer rate;
 
     @Nullable
     private final SpaceCreateDto creatingSpace;

@@ -3,7 +3,6 @@ package com.efedorchenko.timely.entity;
 import com.efedorchenko.timely.model.validation.Constant;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -37,14 +36,14 @@ public class UserEntity {
     private UUID id;
 
     @NotNull
-    private String name;   // default constraint size = 255
+    private String name;
 
     @NotNull
     @Size(max = Constant.USER_POSITION_MAX_LEN)
     private String position;
 
-    @Column(nullable = false)
-    private int rate;
+    @Nullable
+    private Integer rate;
 
     @Nullable
     @OneToOne(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -55,11 +54,11 @@ public class UserEntity {
     @JoinColumn(name = "consist_in_space_id")
     private Space consistsInSpace;
 
-    @NotNull
+    @Nullable
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
 
-    @NotNull
+    @Nullable
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fine> fines;
 
@@ -87,9 +86,9 @@ public class UserEntity {
         } else {
             this.fines = List.copyOf(fines);
         }
+    }
 
-
-    }   @Override
+    @Override
     public String toString() {
         return "UserEntity{id=%s, name='%s', position='%s', rate='%d', createdSpace=%s, consistsInSpace=%s, eventCont=%d, finesCont=%d}"
                 .formatted(id.toString(),
