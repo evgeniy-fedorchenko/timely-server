@@ -2,14 +2,13 @@ package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.exception.BusinessException;
 import com.efedorchenko.timely.exception.ErrorCode;
-import com.efedorchenko.timely.model.auth.AuthRequest;
+import com.efedorchenko.timely.model.auth.Credentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -23,44 +22,40 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class LoginAuthenticationConverter implements AuthenticationConverter {
 
     private final Validator validator;
     private final ObjectMapper objectMapper;
 
-    public LoginAuthenticationConverter(Validator validator, ObjectMapper objectMapper) {
-        this.validator = validator;
-        this.objectMapper = objectMapper;
-    }
-
     @Override
     public Authentication convert(HttpServletRequest request) {
-        AuthRequest authRequest = null;
+        Credentials credentials = null;
         try {
-            authRequest = extractRequestBody(request);
+            credentials = extractRequestBody(request);
 
-            Set<ConstraintViolation<AuthRequest>> violations = validator.validate(authRequest);
+            Set<ConstraintViolation<Credentials>> violations = validator.validate(credentials);
             if (!violations.isEmpty()) {
                 if (log.isWarnEnabled()) {
                     log.warn("Filed validate authentication data\nAuthentication data: {}\nIp: {}\nViolations: {}",
-                            authRequest, request.getRemoteAddr(), violations);
+                            credentials, request.getRemoteAddr(), violations);
                 }
                 throw new BusinessException(ErrorCode.VALIDATION,
                         "Failed validate authentication data. Violations: " + violations);
             }
-            return new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
+            return new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword());
 
         } catch (IOException ioex) {
             if (log.isWarnEnabled()) {
                 log.warn("Convert authentication data failed\nAuthentication data: [{}]\nIp: {}. Ex: {}",
-                        authRequest, request.getRemoteAddr(), ioex.getMessage());
+                        credentials, request.getRemoteAddr(), ioex.getMessage());
             }
             throw new BusinessException(ErrorCode.VALIDATION, "Invalid authentication data");
         }
 
     }
 
-    private AuthRequest extractRequestBody(HttpServletRequest request) throws IOException {
+    private Credentials extractRequestBody(HttpServletRequest request) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         InputStreamReader reader = new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8);
         BufferedReader bufferedReader = new BufferedReader(reader);
@@ -71,6 +66,6 @@ public class LoginAuthenticationConverter implements AuthenticationConverter {
             stringBuilder.append(charBuffer, 0, bytesRead);
         }
 
-        return objectMapper.readValue(stringBuilder.toString(), AuthRequest.class);
+        return objectMapper.readValue(stringBuilder.toString(), Credentials.class);
     }
 }

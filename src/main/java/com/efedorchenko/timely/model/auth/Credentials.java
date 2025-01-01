@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
-public class AuthRequest {
+public class Credentials {
 
     @Email
     @NotBlank
