@@ -156,7 +156,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     private boolean haveAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {
         RoleType initiatorRole = userDetailsRepository.findRoleById(initiatorId)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR2.apply(initiatorId))
-                .getValue();
+                .getRoleType();
 
         if (initiatorRole == RoleType.MODERATOR) {
             return true;
