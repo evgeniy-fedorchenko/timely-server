@@ -1,6 +1,5 @@
 package com.efedorchenko.timely.model.auth;
 
-import com.efedorchenko.timely.model.SpaceKeys;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
@@ -9,8 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.UUID;
-
 @Getter
 @ToString
 @Builder(builderClassName = "Builder")
@@ -18,32 +15,37 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthResponse {
 
-    private final boolean isRegister;
+    private static final AuthErrorCode DEFAULT_ERROR_CODE = AuthErrorCode.OK;
+    private static final String DEFAULT_ERROR_MESSAGE = "OK";
 
-    @Nullable
-    private final UUID userId;
+    @lombok.Builder.Default
+    private final boolean isRegister = true;
 
+    /**
+     * Данные авторизации: токены, ключи доступа и тд.
+     * {@code null}, если запрос неудачный
+     */
     @Nullable
-    @ToString.Exclude
-    private final String jwtToken;
+    private final AuthData authData;
 
+    /**
+     * Данные юзера: имя, должность и тд.
+     * {@code null}, если запрос неудачный
+     */
     @Nullable
-    private final RoleType role;
+    private final UserData userData;
 
-    @Nullable
-    private final SpaceKeys generatedSpaceKeys;
+    /** Код ошибки авторизации */
+    @lombok.Builder.Default
+    private final AuthErrorCode errorCode = DEFAULT_ERROR_CODE;
 
-    @Nullable
-    private final AuthErrorCode errorCode;
-
-    @Nullable
-    private final String errorMessage;
+    /** Пояснение ошибки авторизации */
+    @lombok.Builder.Default
+    private final String errorMessage = DEFAULT_ERROR_MESSAGE;
 
     public static AuthResponse failWith(AuthErrorCode authErrorCode) {
         return new AuthResponse(
                 false,
-                null,
-                null,
                 null,
                 null,
                 authErrorCode,

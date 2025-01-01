@@ -6,11 +6,13 @@ import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.UserMapper;
 import com.efedorchenko.timely.model.SpaceKeys;
+import com.efedorchenko.timely.model.auth.AuthData;
 import com.efedorchenko.timely.model.auth.AuthErrorCode;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.JwtTokenData;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.model.auth.RoleType;
+import com.efedorchenko.timely.model.auth.UserData;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.JwtUtil;
@@ -47,13 +49,13 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                     if (spaceKey != null && findedSpace == null) {
                         return AuthResponse.failWith(AuthErrorCode.SPACE_NOT_FOUND);
                     }
+
                     UUID primaryKey = UUID.randomUUID();
                     UserDetailsImpl userDetails = userMapper.toUserDetailsImpl(primaryKey, request);
-
                     JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
-                    AuthResponse.Builder responseBuilder = AuthResponse.builder()
+
+                    AuthData.Builder authDataBuilder = AuthData.builder()
                             .userId(primaryKey)
-                            .isRegister(true)
                             .jwtToken(jwtUtil.generateToken(jwtTokenData))
                             .role(request.getRole());
 
@@ -65,7 +67,7 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                         }
                         needCreateSpace = true;
                         detachedKeys = spaceService.createDetachedKeys();
-                        responseBuilder.generatedSpaceKeys(detachedKeys);
+                        authDataBuilder.generatedSpaceKeys(detachedKeys);
                     } else {
                         detachedKeys = null;
                         needCreateSpace = false;
@@ -80,7 +82,14 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                         }
                     }, executorOfVirtual);
 
-                    return responseBuilder.build();
+                    String spaceName = findedSpace == null
+                            ? request.getCreatingSpace().getName()
+                            : findedSpace.getName();
+
+                    return AuthResponse.builder()
+                            .userData(UserData.fromRequest(request, spaceName))
+                            .authData(authDataBuilder.build())
+                            .build();
                 });
     }
 
@@ -89,22 +98,26 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
     public AuthResponse login(UUID userId) {
         Optional<UserDetailsImpl> userDetailsOpt = userDetailsRepository.findById(userId);
         if (userDetailsOpt.isEmpty()) {
-            return AuthResponse.failWith(AuthErrorCode.UNREGISTERED);
+            return AuthResponse.failWith(AuthErrorCode.UNREGISTERED);  // Обычно Security бракует запрос еще у себя
         }
         UserDetailsImpl userDetails = userDetailsOpt.get();
+        UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow(); // have equals id
         JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
-
         RoleType roleType = userDetails.getRole().getRoleType();
-        AuthResponse.Builder responseBuilder = AuthResponse.builder()
+
+        AuthData.Builder authDataBuilder = AuthData.builder()
                 .userId(userDetails.getId())
-                .isRegister(true)
                 .jwtToken(jwtUtil.generateToken(jwtTokenData))
                 .role(roleType);
 
         if (roleType.spaceOpsAccess()) {
-            responseBuilder.generatedSpaceKeys(spaceService.getKeys(userId));
+            authDataBuilder.generatedSpaceKeys(spaceService.getKeys(userId));
         }
-        return responseBuilder.build();
+        return AuthResponse.builder()
+                .isRegister(true)
+                .userData(UserData.fromEntity(userEntity))
+                .authData(authDataBuilder.build())
+                .build();
     }
 
     @Override
