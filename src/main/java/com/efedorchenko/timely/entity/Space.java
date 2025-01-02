@@ -69,12 +69,12 @@ public class Space {
 
     @Override
     public String toString() {
-        return "Space{id=%d, name='%s', workerKey='%s', bossKey='%s', creatorId=%s, participants count='%d'}"
+        return "Space{id=%d, name='%s', workerKey='%s', bossKey='%s', creatorId=%s, participants count=%d}"
                 .formatted(
                         id,
                         name,
-                        workerKey.substring(workerKey.length() / 2) + "***",
-                        bossKey.substring(bossKey.length() / 2) + "***",
+                        workerKey.substring(0, workerKey.length() / 2) + "***",
+                        bossKey.substring(0, bossKey.length() / 2) + "***",
                         creator.getId(),
                         participants == null || participants.isEmpty() ? 0 : participants.size());
     }
