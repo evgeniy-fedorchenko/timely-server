@@ -34,7 +34,7 @@ public class Constant {
     public static final int FINE_DESCRIPTION_MAX_LEN = 128;
 
     /**
-     * Макс. длина емейла юзера - поле {@link UserDetailsImpl#username} и для всех его {@code DTO}
+     * Макс. длина емейла юзера - поле {@link UserDetailsImpl#username}. DTO проверяются с помощью {@link Email}
      */
     public static final int USERNAME_MAX_LEN = 128;
 

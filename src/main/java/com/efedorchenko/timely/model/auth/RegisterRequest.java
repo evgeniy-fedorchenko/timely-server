@@ -23,7 +23,6 @@ public class RegisterRequest {
 
     @Email
     @NotBlank
-    @Size(max = Constant.USERNAME_MAX_LEN)
     private final String username;
 
     @NotBlank
