@@ -7,6 +7,8 @@ import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.service.Helper;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * Package-private mapper
  * <p>
@@ -20,6 +22,7 @@ class EventMapper extends AbstractMapper<Event, EventDto> {
     Event map(EventDto userDataDto, UserEntity userEntity) {
         Event event = new Event();
 
+        Optional.ofNullable(userDataDto.getBackendId()).ifPresent(event::setId);
         event.setDate(userDataDto.getDate());
         event.setMonthUid(Helper.getMonthUid(userDataDto.getDate()));
         event.setWorkDuration(userDataDto.getWorkDuration());
@@ -32,7 +35,7 @@ class EventMapper extends AbstractMapper<Event, EventDto> {
     @Override
     EventDto map(Event userDataEntity) {
         return EventDto.builder()
-                .id(userDataEntity.getId())
+                .backendId(userDataEntity.getId())
                 .date(userDataEntity.getDate())
                 .workDuration(userDataEntity.getWorkDuration())
                 .comment(userDataEntity.getComment())

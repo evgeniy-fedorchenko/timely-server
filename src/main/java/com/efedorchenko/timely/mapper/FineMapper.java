@@ -7,6 +7,8 @@ import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.service.Helper;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * Package-private mapper
  * <p>
@@ -20,6 +22,7 @@ class FineMapper extends AbstractMapper<Fine, FineDto> {
     Fine map(FineDto userDataDto, UserEntity userEntity) {
         Fine fine = new Fine();
 
+        Optional.ofNullable(userDataDto.getBackendId()).ifPresent(fine::setId);
         fine.setDate(userDataDto.getDate());
         fine.setMonthUid(Helper.getMonthUid(userDataDto.getDate()));
         fine.setDescription(userDataDto.getDescription());
@@ -32,7 +35,7 @@ class FineMapper extends AbstractMapper<Fine, FineDto> {
     @Override
     FineDto map(Fine userDataEntity) {
         return FineDto.builder()
-                .id(userDataEntity.getId())
+                .backendId(userDataEntity.getId())
                 .date(userDataEntity.getDate())
                 .description(userDataEntity.getDescription())
                 .amount(userDataEntity.getAmount())

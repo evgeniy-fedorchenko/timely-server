@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -27,9 +27,13 @@ public abstract class UserDataDto {
 
     @Positive
     @Nullable
-    private final Long id;
+    private final Long appId;
 
-    @Future
+    @Positive
+    @Nullable
+    private final Long backendId;
+
+    @FutureOrPresent
     @NotNull
     private final LocalDate date;
 

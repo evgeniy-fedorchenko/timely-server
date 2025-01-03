@@ -125,7 +125,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void changeData(UUID userId, UserDataModifyDto modifyingData) {
         UserDataDto newData = modifyingData.getNewData();
-        Long dataId = newData.getId();
+        Long dataId = newData.getBackendId(); // FIXME: 03.01.2025 проверить, может в случае отсутствия не бросать исключение а просто сохранять объект как новый
         if (dataId == null) {
             throw ExceptionTemplates.BNS_VAR7.apply(modifyingData);
         }
