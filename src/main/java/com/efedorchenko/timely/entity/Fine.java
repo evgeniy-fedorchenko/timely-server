@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -39,6 +39,16 @@ public final class Fine extends UserDataEntity {
     @Override
     public UserDataType getType() {
         return UserDataType.FINE;
+    }
+
+    @Override
+    public boolean equalsLocal(UserDataEntity otherEntity) {
+        if (otherEntity instanceof Fine otherFine) {
+            return Objects.equals(this.description, otherFine.description)
+                    && Objects.equals(this.amount, otherFine.amount);
+        } else {
+            return false;
+        }
     }
 
 }

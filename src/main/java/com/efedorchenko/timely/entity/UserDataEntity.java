@@ -42,4 +42,6 @@ public abstract sealed class UserDataEntity permits Event, Fine {
     public String toString() {
         return "UserDataEntity{id=%d, userId=%s}".formatted(id, user.getId().toString());
     }
+
+    public abstract boolean equalsLocal(UserDataEntity otherEntity);
 }

@@ -44,4 +44,13 @@ public final class Event extends UserDataEntity {
         return UserDataType.EVENT;
     }
 
+    @Override
+    public boolean equalsLocal(UserDataEntity otherEntity) {
+        if (otherEntity instanceof Event otherEvent) {
+            return Objects.equals(this.workDuration, otherEvent.workDuration)
+                    && Objects.equals(this.comment, otherEvent.comment);
+        } else {
+            return false;
+        }
+    }
 }

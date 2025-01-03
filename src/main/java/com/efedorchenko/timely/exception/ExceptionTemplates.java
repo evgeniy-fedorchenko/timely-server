@@ -111,4 +111,15 @@ public class ExceptionTemplates {
                         .formatted(role, RoleType.values());
                 return new ServerException(ErrorCode.NOT_FOUND_FOR_SERVER_EX, errMess);
             };
+
+    public static final Supplier<ServerException> SVR_VAR_15 =
+            () -> {
+                String errMess = """
+                        This query-method must be implemented in a specific subclass (interface).
+                        The basic implementation has no connection to the real table and is only needed to
+                        separate repositories working with UserDataEntity heirs from all other JPA repositories.
+                        Please implement this method in each subclass
+                        """;
+                return new ServerException(ErrorCode.CONFIGURATION, errMess);
+            };
 }

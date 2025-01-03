@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -80,8 +81,18 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     public UserDataDto addData(UUID userId, UserDataDto userDataDto) {
         UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
         UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
-
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
+
+//        Если такой объект уже существует (по совпадению всех полей) - просто возвращаем его
+        List<UserDataEntity> foundData = repository.findData(userDataEntity);
+        if (!foundData.isEmpty()) {
+            Optional<UserDataEntity> existingData = foundData.stream()
+                    .filter(fd -> fd.equalsLocal(userDataEntity))
+                    .findFirst();
+            if (existingData.isPresent()) {
+                return userDataMapper.map(existingData.get());
+            }
+        }
         UserDataEntity savedDataEntity = repository.save(userDataEntity);
         return userDataMapper.map(savedDataEntity);
     }
