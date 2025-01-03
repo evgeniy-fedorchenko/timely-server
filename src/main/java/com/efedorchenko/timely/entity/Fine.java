@@ -30,12 +30,6 @@ import java.time.LocalDate;
 public final class Fine extends UserDataEntity {
 
     @NotNull
-    private LocalDate date;
-
-    @Column(nullable = false)
-    private int monthUid;
-
-    @NotNull
     @Size(max = Constant.FINE_DESCRIPTION_MAX_LEN)
     private String description;
 

@@ -8,7 +8,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -31,12 +30,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 public final class Event extends UserDataEntity {
-
-    @NotNull
-    private LocalDate date;
-
-    @Column(nullable = false)
-    private int monthUid;
 
     @Convert(converter = WorkDurationConverter.class)
     @Column(columnDefinition = "numeric(5)", nullable = false)
