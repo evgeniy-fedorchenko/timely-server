@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="502" author="evgeniyf">
+
+        <preConditions>
+            <tableExists schemaName="data" tableName="events"/>
+        </preConditions>
+
+        <comment>Add column 'status' to table 'data.events'</comment>
+
+        <sql>
+            CREATE TYPE data.event_status AS ENUM ('SUCCESS', 'MISSED');
+        </sql>
+
+        <addColumn schemaName="data" tableName="events">
+            <column name="status" type="data.event_status">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+    </changeSet>
+</databaseChangeLog>
