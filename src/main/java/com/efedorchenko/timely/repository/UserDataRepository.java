@@ -25,10 +25,6 @@ public interface UserDataRepository<E extends UserDataEntity> extends JpaReposit
         throw ExceptionTemplates.SVR_VAR_15.get();
     }
 
-    default List<E> findData(UserDataEntity userDataEntity) {
-        throw ExceptionTemplates.SVR_VAR_15.get();
-    }
-
      default Optional<E> findByUserIdAndDate(UUID userId, LocalDate date) {
          throw ExceptionTemplates.SVR_VAR_15.get();
      }
