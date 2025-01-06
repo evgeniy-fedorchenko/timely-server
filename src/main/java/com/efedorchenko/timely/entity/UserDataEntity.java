@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.entity;
 
 import com.efedorchenko.timely.model.data.UserDataType;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Setter
@@ -35,6 +37,9 @@ public abstract sealed class UserDataEntity permits Event, Fine {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @Nullable
+    private Instant deletedAt;
 
     public abstract UserDataType getType();
 

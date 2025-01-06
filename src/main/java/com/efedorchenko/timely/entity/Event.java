@@ -6,6 +6,8 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
@@ -14,6 +16,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -38,6 +42,12 @@ public final class Event extends UserDataEntity {
     @Nullable
     @Size(max = Constant.COMMENT_MAX_LEN)
     private String comment;
+
+    @Nullable
+    @Column(columnDefinition = "data.event_status")
+    @Enumerated(EnumType.STRING)
+    @JdbcType(value = PostgreSQLEnumJdbcType.class)
+    private EventStatus status;
 
     @Override
     public UserDataType getType() {

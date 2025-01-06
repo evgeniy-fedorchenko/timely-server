@@ -20,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,11 +108,12 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
                 if (!userId.equals(data.getUser().getId())) {
                     throw ExceptionTemplates.BNS_VAR6.apply(dataId, userId);
                 }
-                repository.deleteById(dataId);
+                data.setDeletedAt(Instant.now());
+                repository.save(data);
 
 //                Без исключений, потому что данные, которые нужно удалить, итак не существуют
 //                Клиент просто должен обновить данные
-            }, () -> log.warn("Data of userID [{}] not found for deleting", userId));
+            }, () -> log.warn("Data of userID [{}] not found for mark deleted", userId));
 
         }, executorOfVirtual);
     }
