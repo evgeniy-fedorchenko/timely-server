@@ -80,19 +80,15 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @Transactional
     public UserDataDto addData(UUID userId, UserDataDto userDataDto) {
         UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
-        UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
 
-//        Если такой объект уже существует (по совпадению всех полей) - просто возвращаем его
-        List<UserDataEntity> foundData = repository.findData(userDataEntity);
-        if (!foundData.isEmpty()) {
-            Optional<UserDataEntity> existingData = foundData.stream()
-                    .filter(fd -> fd.equalsLocal(userDataEntity))
-                    .findFirst();
-            if (existingData.isPresent()) {
-                return userDataMapper.map(existingData.get());
-            }
+//        Если такой объект уже существует (по совпадению даты) - просто возвращаем его
+        Optional<UserDataEntity> existingData = repository.findByUserIdAndDate(userId, userDataDto.getDate());
+
+        if (existingData.isPresent()) {
+            return userDataMapper.map(existingData.get());
         }
+        UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
         UserDataEntity savedDataEntity = repository.save(userDataEntity);
         return userDataMapper.map(savedDataEntity);
     }
@@ -146,8 +142,8 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @Override
     @Transactional(readOnly = true)
     public Collection<UserDataDto> getRange(DataRangeRequest dataRangeRequest, UserDataType dataType) {
-        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStart());
-        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEnd());
+        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStartInclusive());
+        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEndInclusive());
         UUID userId = dataRangeRequest.getRequestedUserId();
 
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);

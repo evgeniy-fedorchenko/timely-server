@@ -39,6 +39,7 @@ public class DataController {
 
     private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
 
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public UserDataDto addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
         if (userDataDto.getToUserId() == null) {
@@ -67,4 +68,5 @@ public class DataController {
     public void editData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataModifyDto newData) {
         userDataService.changeData(userId, newData);
     }
+    // TODO 05.01.2025 00:07: ResponseEntity?
 }

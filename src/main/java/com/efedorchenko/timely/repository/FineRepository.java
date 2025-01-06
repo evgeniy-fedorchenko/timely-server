@@ -6,7 +6,9 @@ import com.efedorchenko.timely.entity.UserDataEntity;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @EntityType(UserDataType.FINE)
@@ -25,4 +27,6 @@ public interface FineRepository extends UserDataRepository<Fine> {
             """)
     List<Fine> findData(UserDataEntity userDataEntity);
 
+    @Override
+    Optional<Fine> findByUserIdAndDate(UUID userId, LocalDate date);
 }

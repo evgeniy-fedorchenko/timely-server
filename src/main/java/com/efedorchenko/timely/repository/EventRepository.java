@@ -6,7 +6,9 @@ import com.efedorchenko.timely.entity.UserDataEntity;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @EntityType(UserDataType.EVENT)
@@ -24,4 +26,7 @@ public interface EventRepository extends UserDataRepository<Event> {
             AND e.date = :#{#userDataEntity.date}
             """)
     List<Event> findData(UserDataEntity userDataEntity);
+
+    @Override
+    Optional<Event> findByUserIdAndDate(UUID userId, LocalDate date);
 }

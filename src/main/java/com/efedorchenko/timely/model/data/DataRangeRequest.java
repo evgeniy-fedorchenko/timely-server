@@ -1,7 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
 import com.efedorchenko.timely.model.validation.CurrentDatesRange;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,16 +12,16 @@ import java.util.UUID;
 @Getter
 @ToString
 @AllArgsConstructor
-@CurrentDatesRange(startField = "start", endField = "end")
+@CurrentDatesRange(startField = "startInclusive", endField = "endInclusive")
 public class DataRangeRequest {
 
     @NotNull
-    private final YearMonth start;
+    private final YearMonth startInclusive;
 
     @NotNull
-    private final YearMonth end;
+    private final YearMonth endInclusive;
 
-    @Nullable
+    @NotNull
     private final UUID requestedUserId; 
 
 }
