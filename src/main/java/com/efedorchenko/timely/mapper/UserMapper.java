@@ -5,6 +5,7 @@ import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.exception.ExceptionTemplates;
+import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
 import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.repository.RoleRepository;
@@ -47,6 +48,14 @@ public class UserMapper {
         user.setConsistsInSpace(space);
 
         return user;
+    }
+
+    public SpaceMember map(UserEntity userEntity) {
+        return new SpaceMember(
+                userEntity.getId(),
+                userEntity.getName(),
+                userEntity.getPosition()
+        );
     }
 
     private Role getRole(RoleType roleType) {
