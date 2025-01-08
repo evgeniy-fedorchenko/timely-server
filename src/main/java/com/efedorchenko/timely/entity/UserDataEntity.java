@@ -43,7 +43,6 @@ public abstract sealed class UserDataEntity permits Event, Fine {
     @Nullable
     private Instant deletedAt;
 
-    @NotNull
     @UpdateTimestamp
     private Instant changedAt;
 

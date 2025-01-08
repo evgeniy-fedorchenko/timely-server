@@ -5,6 +5,7 @@ import com.efedorchenko.timely.entity.Fine;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +20,7 @@ public interface FineRepository extends UserDataRepository<Fine> {
 
     @Override
     Optional<Fine> findByUserIdAndDate(UUID userId, LocalDate date);
+
+    @Override
+    List<Fine> getDataByUserIdAndChangedAtBefore(UUID userId, Instant changedAt);
 }

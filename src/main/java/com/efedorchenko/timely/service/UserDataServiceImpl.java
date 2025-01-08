@@ -120,6 +120,26 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<UserDataDto> getRange(DataRangeRequest dataRangeRequest, UserDataType dataType) {
+        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStartInclusive());
+        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEndInclusive());
+        UUID userId = dataRangeRequest.getRequestedUserId();
+
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
+        List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
+        return userDataMapper.map(foundEntities);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserDataDto> getUpdates(UUID userId, UserDataType dataType, Instant since) {
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
+        List<UserDataEntity> foundEntities = repository.getDataByUserIdAndChangedAtBefore(userId, since);
+        return userDataMapper.map(foundEntities);
+    }
+
+    @Override
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void changeData(UUID userId, UserDataModifyDto modifyingData) {
@@ -140,27 +160,6 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
             UserDataEntity updatedDataEntity = userDataMapper.update(dataEntity, newData);
             repository.save(updatedDataEntity);
         }, executorOfVirtual);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Collection<UserDataDto> getRange(DataRangeRequest dataRangeRequest, UserDataType dataType) {
-        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStartInclusive());
-        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEndInclusive());
-        UUID userId = dataRangeRequest.getRequestedUserId();
-
-        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
-        List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
-
-        if (foundEntities.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        ArrayList<UserDataDto> dtos = new ArrayList<>();
-        for (UserDataEntity entity : foundEntities) {
-            dtos.add(userDataMapper.map(entity));
-        }
-        return dtos;
     }
 
     private boolean haveAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {

@@ -6,6 +6,7 @@ import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.model.data.UserDataType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -27,5 +28,9 @@ public interface UserDataRepository<E extends UserDataEntity> extends JpaReposit
 
      default Optional<E> findByUserIdAndDate(UUID userId, LocalDate date) {
          throw ExceptionTemplates.SVR_VAR_15.get();
+     }
+
+     default List<E> getDataByUserIdAndChangedAtBefore(UUID userId, Instant changeAt) {
+        throw ExceptionTemplates.SVR_VAR_15.get();
      }
 }
