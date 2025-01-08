@@ -83,11 +83,12 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
 
-//        Если такой объект уже существует (по совпадению даты) - просто возвращаем его
-        Optional<UserDataEntity> existingData = repository.findByUserIdAndDate(userId, userDataDto.getDate());
-
-        if (existingData.isPresent()) {
-            return userDataMapper.map(existingData.get());
+        if (userDataDto.getType().isRepeatable()) {
+//            Если такой объект уже существует (по совпадению даты) - просто возвращаем его
+            Optional<UserDataEntity> existingData = repository.findByUserIdAndDate(userId, userDataDto.getDate());
+            if (existingData.isPresent()) {
+                return userDataMapper.map(existingData.get());
+            }
         }
         UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
         UserDataEntity savedDataEntity = repository.save(userDataEntity);
@@ -123,7 +124,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void changeData(UUID userId, UserDataModifyDto modifyingData) {
         UserDataDto newData = modifyingData.getNewData();
-        Long dataId = newData.getBackendId(); // FIXME: 03.01.2025 проверить, может в случае отсутствия не бросать исключение а просто сохранять объект как новый
+        Long dataId = newData.getId(); // FIXME: 03.01.2025 проверить, может в случае отсутствия не бросать исключение а просто сохранять объект как новый
         if (dataId == null) {
             throw ExceptionTemplates.BNS_VAR7.apply(modifyingData);
         }
@@ -176,4 +177,5 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
                 .orElseThrow(() -> ExceptionTemplates.BNS_VAR4.apply(userIdToCompareSpace, initiatorId));
 
         return initiatorSpaceId.equals(addableUserSpaceId);
-    }}
+    }
+}
