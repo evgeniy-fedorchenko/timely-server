@@ -8,7 +8,7 @@ import java.time.Duration;
 /**
  * В БД храним {@link Event#workDuration} с точностью до секунды, так как более высокая точность ни к чему
  */
-@Converter(autoApply = true)
+@Converter
 public class WorkDurationConverter implements AttributeConverter<Duration, Long> {
 
     @Override
