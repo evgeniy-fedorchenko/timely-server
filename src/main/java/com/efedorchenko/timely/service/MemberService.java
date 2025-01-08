@@ -8,4 +8,8 @@ import java.util.UUID;
 public interface MemberService {
 
     List<SpaceMember> getMembers(UUID userId);
+
+    boolean leaveSpace(UUID userId);
+
+    boolean kickedUser(UUID userId, UUID kickedUserId);
 }

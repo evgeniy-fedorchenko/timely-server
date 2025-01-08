@@ -2,6 +2,7 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.mapper.UserMapper;
 import com.efedorchenko.timely.model.SpaceMember;
+import com.efedorchenko.timely.repository.SpaceRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final UserMapper userMapper;
     private final UserEntityRepository userEntityRepository;
+    private final SpaceRepository spaceRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -26,5 +28,17 @@ public class MemberServiceImpl implements MemberService {
                 .flatMap(List::stream)
                 .map(userMapper::map)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public boolean leaveSpace(UUID userId) {
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean kickedUser(UUID userId, UUID kickedUserId) {
+        return false;
     }
 }
