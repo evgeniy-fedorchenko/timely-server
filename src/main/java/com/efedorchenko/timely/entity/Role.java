@@ -40,4 +40,11 @@ public class Role implements Serializable {
     @Nullable
     private String description;
 
+    public static Role fromRoleType(RoleType roleType) {
+        Role role = new Role();
+        role.setRoleType(roleType);
+        role.setDescription(roleType.getDescription());
+        return role;
+    }
+
 }

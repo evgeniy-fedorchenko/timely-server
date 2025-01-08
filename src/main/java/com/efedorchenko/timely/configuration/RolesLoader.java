@@ -23,9 +23,7 @@ public class RolesLoader implements ApplicationRunner {
         Arrays.stream(RoleType.values())
                 .forEach(roleType -> {
                     if (!roleRepository.existsByRoleType(roleType)) {
-                        Role role = new Role();
-                        role.setRoleType(roleType);
-                        role.setDescription(role.getDescription());
+                        Role role = Role.fromRoleType(roleType);
                         roleRepository.save(role);
                     }
                 });

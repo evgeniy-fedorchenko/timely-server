@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,7 +12,10 @@ import java.util.List;
 public enum UserDataType {
 
     EVENT(false),
+
     FINE(true),
+
+    @Schema(hidden = true)
     PARENT(false);
 
     /** Отвечает на вопрос "Можно ли иметь несколько объектов на одну дату" */
