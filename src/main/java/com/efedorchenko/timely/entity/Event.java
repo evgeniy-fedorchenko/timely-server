@@ -25,7 +25,10 @@ import java.util.Objects;
 @Table(
         name = "events",
         schema = "data",
-        indexes = @Index(name = "events_month_uid_user_id_idx", columnList = "month_uid,user_id")
+        indexes = {
+                @Index(name = "events_user_id_month_uid_idx", columnList = "user_id,month_uid"),   // Поиск диапазонов
+                @Index(name = "events_user_id_changed_at_idx", columnList = "user_id,changed_at")  // Запрос обновлений
+        }
 )
 @Getter
 @Setter

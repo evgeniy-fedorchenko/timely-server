@@ -5,23 +5,24 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
 
-    <changeSet id="502" author="evgeniyf">
+    <changeSet id="503" author="evgeniyf">
 
         <preConditions>
             <tableExists schemaName="data" tableName="events"/>
         </preConditions>
 
-        <comment>Add column 'status' to table 'data.events'. Null-values means success</comment>
-
-        <sql>
-            CREATE TYPE data.event_status AS ENUM ('SUCCESS', 'MISSED');
-        </sql>
+        <comment>Add column 'changed_at' to table 'data.events'</comment>
 
         <addColumn schemaName="data" tableName="events">
-            <column name="status" type="data.event_status">
-                <constraints nullable="true"/>
+            <column name="changed_at" type="timestamptz">
+                <constraints nullable="false"/>
             </column>
         </addColumn>
 
+        <createIndex indexName="events_user_id_changed_at_idx" schemaName="data" tableName="events">
+            <column name="user_id"/>
+            <column name="changed_at"/>
+        </createIndex>
     </changeSet>
+
 </databaseChangeLog>

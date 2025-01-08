@@ -22,7 +22,7 @@ class FineMapper extends AbstractMapper<Fine, FineDto> {
     Fine map(FineDto userDataDto, UserEntity userEntity) {
         Fine fine = new Fine();
 
-        Optional.ofNullable(userDataDto.getBackendId()).ifPresent(fine::setId);
+        Optional.ofNullable(userDataDto.getId()).ifPresent(fine::setId);
         fine.setDate(userDataDto.getDate());
         fine.setMonthUid(Helper.getMonthUid(userDataDto.getDate()));
         fine.setDescription(userDataDto.getDescription());
@@ -35,7 +35,7 @@ class FineMapper extends AbstractMapper<Fine, FineDto> {
     @Override
     FineDto map(Fine userDataEntity) {
         return FineDto.builder()
-                .backendId(userDataEntity.getId())
+                .id(userDataEntity.getId())
                 .date(userDataEntity.getDate())
                 .description(userDataEntity.getDescription())
                 .amount(userDataEntity.getAmount())

@@ -1,6 +1,8 @@
 package com.efedorchenko.timely.model.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.annotation.Nullable;
@@ -11,13 +13,14 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.beans.Transient;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
 @ToString
 @SuperBuilder
+@JsonIgnoreProperties(ignoreUnknown = true)   // Временно, чтобы игнорировать aapId
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventDto.class, name = EventDto.TYPE),
@@ -25,22 +28,24 @@ import java.util.UUID;
 })
 public abstract class UserDataDto {
 
-    @Positive
     @Nullable
-    private final Long appId;
-
     @Positive
-    @Nullable
-    private final Long backendId;
+    @JsonProperty("backendId")
+    private final Long id;
 
-    @FutureOrPresent
     @NotNull
+    @FutureOrPresent
     private final LocalDate date;
 
     @Nullable
     private final UUID toUserId;
 
-    @Transient
+    @Nullable
+    private Instant deletedAt;
+
+    @Nullable
+    private Instant changedAt;
+
     @JsonIgnore
     public abstract UserDataType getType();
 }

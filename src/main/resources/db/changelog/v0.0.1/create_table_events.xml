@@ -41,9 +41,9 @@
             <column name="comment" type="VARCHAR(500)"/>
         </createTable>
 
-        <createIndex indexName="events_month_uid_user_id_idx" schemaName="data" tableName="events">
-            <column name="month_uid"/>
+        <createIndex indexName="events_user_id_month_uid_idx" schemaName="data" tableName="events">
             <column name="user_id"/>
+            <column name="month_uid"/>
         </createIndex>
 
         <!-- FK на юзера, короткому принадлежит этот event -->

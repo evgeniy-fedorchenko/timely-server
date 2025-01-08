@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.entity;
 
 import com.efedorchenko.timely.model.data.UserDataType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,6 +43,11 @@ public abstract sealed class UserDataEntity permits Event, Fine {
     @Nullable
     private Instant deletedAt;
 
+    @NotNull
+    @UpdateTimestamp
+    private Instant changedAt;
+
+    @JsonIgnore
     public abstract UserDataType getType();
 
     @Override

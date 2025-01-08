@@ -5,12 +5,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!-- id 000 --> <include file="create_schemas.xml" relativeToChangelogFile="true"/>
-    <!-- id 100 --> <include file="create_table_roles.xml" relativeToChangelogFile="true"/>
+    <!-- id 000 --> <include file="create_schemas.xml"            relativeToChangelogFile="true"/>
+    <!-- id 100 --> <include file="create_table_roles.xml"        relativeToChangelogFile="true"/>
     <!-- id 200 --> <include file="create_table_user_details.xml" relativeToChangelogFile="true"/>
-    <!-- id 300 --> <include file="create_table_users.xml" relativeToChangelogFile="true"/>
-    <!-- id 400 --> <include file="create_table_spaces.xml" relativeToChangelogFile="true"/>
-    <!-- id 500 --> <include file="create_table_events.xml" relativeToChangelogFile="true"/>
-    <!-- id 600 --> <include file="create_table_fines.xml" relativeToChangelogFile="true"/>
+    <!-- id 300 --> <include file="create_table_users.xml"        relativeToChangelogFile="true"/>
+    <!-- id 400 --> <include file="create_table_spaces.xml"       relativeToChangelogFile="true"/>
+    <!-- id 500 --> <include file="create_table_events.xml"       relativeToChangelogFile="true"/>
+    <!-- id 600 --> <include file="create_table_fines.xml"        relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

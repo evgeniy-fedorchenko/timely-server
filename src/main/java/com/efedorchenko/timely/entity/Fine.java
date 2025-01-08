@@ -19,7 +19,10 @@ import java.util.Objects;
 @Table(
         name = "fines",
         schema = "data",
-        indexes = @Index(name = "fines_month_uid_user_id_idx", columnList = "month_uid,user_id")
+        indexes = {
+                @Index(name = "fines_user_id_month_uid_idx", columnList = "user_id,month_uid"),   // Поиск диапазонов
+                @Index(name = "fines_user_id_changed_at_idx", columnList = "user_id,changed_at")  // Запрос обновлений
+        }
 )
 @Getter
 @Setter

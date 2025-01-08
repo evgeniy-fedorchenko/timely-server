@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="602" author="evgeniyf">
+
+        <preConditions>
+            <tableExists schemaName="data" tableName="fines"/>
+        </preConditions>
+
+        <comment>Add column 'changed_at' to table 'data.fines'</comment>
+
+        <addColumn schemaName="data" tableName="fines">
+            <column name="changed_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <createIndex indexName="fines_user_id_changed_at_idx" schemaName="data" tableName="fines">
+            <column name="user_id"/>
+            <column name="changed_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
