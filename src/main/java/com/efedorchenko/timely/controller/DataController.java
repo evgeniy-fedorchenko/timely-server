@@ -26,7 +26,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Validated
 @AllArgsConstructor
 @RestController
-@ResponseStatus(HttpStatus.ACCEPTED)
 @RequestMapping(path = DataController.DATA_ENDPOINT)
 public class DataController {
 
@@ -34,31 +33,30 @@ public class DataController {
 
     private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
 
-    @ResponseStatus(HttpStatus.OK)
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public UserDataDto addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
-        if (userDataDto.getToUserId() == null) {
-            return userDataService.addData(userId, userDataDto);
-        } else {
-            return userDataService.addDataToOtherUser(userId, userDataDto);
-        }
+        return userDataDto.getToUserId() == null
+                ? userDataService.addData(userId, userDataDto)
+                : userDataService.addDataToOtherUser(userId, userDataDto);
     }
 
-    @DeleteMapping(path = "/{clearableUserId}/{dataType}/{dataId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @DeleteMapping(path = "/{dataType}")
     public void deleteData(@AuthenticationPrincipal UUID userId,
-                           @PathVariable UUID clearableUserId,
                            @PathVariable UserDataType dataType,
-                           @PathVariable Long dataId) {
-        userDataService.deleteData(userId, clearableUserId, dataType, dataId);
+                           @RequestParam UUID targetUserId,
+                           @RequestParam Long dataId) {
+        userDataService.deleteData(userId, targetUserId, dataType, dataId);
     }
 
-    @ResponseStatus(HttpStatus.OK)
+    // TODO 08.01.2025 19:53: Принимать даты в параметрах, userId сделать nullable и если что брать из principal
     @PostMapping(path = "/{dataType}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public Collection<UserDataDto> getRange(@RequestBody @Valid DataRangeRequest dataRangeRequest,
                                             @PathVariable UserDataType dataType) {
         return userDataService.getRange(dataRangeRequest, dataType);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "/{dataType}", produces = APPLICATION_JSON_VALUE)
     public Collection<UserDataDto> getUpdates(
             @AuthenticationPrincipal UUID userId,
@@ -70,6 +68,7 @@ public class DataController {
                 : userDataService.getUpdates(targetUserId, dataType, since);
     }
 
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PatchMapping(consumes = APPLICATION_JSON_VALUE)
     public void editData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataModifyDto newData) {
         userDataService.changeData(userId, newData);

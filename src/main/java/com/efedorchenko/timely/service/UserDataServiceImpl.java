@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,37 +57,37 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
      *
      * @param initiatorIdOfAdding авторизованный в данный момент юзер, который
      *                            инициирует добавление каких-то данных какому-то юзеру
-     * @param userDataDto         данные объекта, которые нужно добавить какому-то юзеру.
+     * @param dataDto         данные объекта, которые нужно добавить какому-то юзеру.
      *                            Кому именно - берется из {@code userDataDto.getToUserId()}
      */
     @Override
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
-    public UserDataDto addDataToOtherUser(UUID initiatorIdOfAdding, UserDataDto userDataDto) {
-        UUID toUserId = userDataDto.getToUserId();
+    public UserDataDto addDataToOtherUser(UUID initiatorIdOfAdding, UserDataDto dataDto) {
+        UUID toUserId = dataDto.getToUserId();
         if (toUserId == null) {
             throw ExceptionTemplates.BNS_VAR1.get();
         }
         if (!this.haveAccessToSpaceOf(initiatorIdOfAdding, toUserId)) {
             throw ExceptionTemplates.BNS_VAR5.apply(initiatorIdOfAdding, toUserId);
         }
-        return this.addData(toUserId, userDataDto);
+        return this.addData(toUserId, dataDto);
     }
 
     @Override
     @Transactional
-    public UserDataDto addData(UUID userId, UserDataDto userDataDto) {
+    public UserDataDto addData(UUID userId, UserDataDto dataDto) {
         UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
-        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataDto.getType());
+        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataDto.getType());
 
-        if (userDataDto.getType().isRepeatable()) {
+        if (dataDto.getType().isRepeatable()) {
 //            Если такой объект уже существует (по совпадению даты) - просто возвращаем его
-            Optional<UserDataEntity> existingData = repository.findByUserIdAndDate(userId, userDataDto.getDate());
+            Optional<UserDataEntity> existingData = repository.findByUserIdAndDate(userId, dataDto.getDate());
             if (existingData.isPresent()) {
                 return userDataMapper.map(existingData.get());
             }
         }
-        UserDataEntity userDataEntity = userDataMapper.map(userDataDto, userEntity);
+        UserDataEntity userDataEntity = userDataMapper.map(dataDto, userEntity);
         UserDataEntity savedDataEntity = repository.save(userDataEntity);
         return userDataMapper.map(savedDataEntity);
     }
@@ -98,13 +95,13 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @Override
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
-    public void deleteData(UUID userId, UUID clearableUserId, UserDataType userDataType, Long dataId) {
-        if (!this.haveAccessToSpaceOf(userId, clearableUserId)) {
-            throw ExceptionTemplates.BNS_VAR5.apply(userId, clearableUserId);
+    public void deleteData(UUID userId, UUID targetUserId, UserDataType dataType, Long dataId) {
+        if (!this.haveAccessToSpaceOf(userId, targetUserId)) {
+            throw ExceptionTemplates.BNS_VAR5.apply(userId, targetUserId);
         }
 
         CompletableFuture.runAsync(() -> {
-            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(userDataType);
+            UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
             repository.findById(dataId).ifPresentOrElse(data -> {
                 if (!userId.equals(data.getUser().getId())) {
                     throw ExceptionTemplates.BNS_VAR6.apply(dataId, userId);
