@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.model.auth;
+package com.efedorchenko.timely.security.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

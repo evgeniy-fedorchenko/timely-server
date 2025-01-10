@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.entity;
 
-import com.efedorchenko.timely.model.auth.RoleType;
+import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

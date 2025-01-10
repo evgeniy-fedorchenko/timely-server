@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.auth;
 
+import com.efedorchenko.timely.security.model.AuthData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.AccessLevel;

@@ -1,8 +1,8 @@
 package com.efedorchenko.timely.configuration;
 
 import com.efedorchenko.timely.entity.Role;
-import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.repository.RoleRepository;
+import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.ApplicationArguments;

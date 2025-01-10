@@ -4,6 +4,7 @@ import com.efedorchenko.timely.model.SpaceCreateDto;
 import com.efedorchenko.timely.model.validation.AtLeastOneNotNull;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.model.validation.Email;
+import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

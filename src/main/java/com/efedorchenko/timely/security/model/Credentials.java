@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.model.auth;
+package com.efedorchenko.timely.security.model;
 
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.model.validation.Email;

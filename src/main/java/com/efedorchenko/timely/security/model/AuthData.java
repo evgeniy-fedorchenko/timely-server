@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.model.auth;
+package com.efedorchenko.timely.security.model;
 
 import com.efedorchenko.timely.model.SpaceKeys;
 import jakarta.annotation.Nullable;

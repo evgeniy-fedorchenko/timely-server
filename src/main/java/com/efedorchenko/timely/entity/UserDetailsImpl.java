@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.entity;
 
-import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.model.validation.Constant;
+import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

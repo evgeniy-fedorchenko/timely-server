@@ -1,10 +1,10 @@
 package com.efedorchenko.timely.configuration;
 
-import com.efedorchenko.timely.model.auth.RoleType;
 import com.efedorchenko.timely.security.JwtAuthenticationFilter;
 import com.efedorchenko.timely.security.JwtUtil;
 import com.efedorchenko.timely.security.LoginAuthenticationConverter;
 import com.efedorchenko.timely.security.LoginAuthenticationFilter;
+import com.efedorchenko.timely.security.model.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -2,7 +2,7 @@ package com.efedorchenko.timely.security;
 
 import com.efedorchenko.timely.exception.BusinessException;
 import com.efedorchenko.timely.exception.ErrorCode;
-import com.efedorchenko.timely.model.auth.Credentials;
+import com.efedorchenko.timely.security.model.Credentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;

@@ -2,7 +2,7 @@ package com.efedorchenko.timely.repository;
 
 import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.entity.Role;
-import com.efedorchenko.timely.model.auth.RoleType;
+import com.efedorchenko.timely.security.model.RoleType;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

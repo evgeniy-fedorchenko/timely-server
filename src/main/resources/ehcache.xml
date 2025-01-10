@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
 
     <cache alias="roles">
-        <key-type>com.efedorchenko.timely.model.auth.RoleType</key-type>
+        <key-type>com.efedorchenko.timely.security.model.RoleType</key-type>
         <value-type>com.efedorchenko.timely.entity.Role</value-type>
         <resources>
             <heap>10</heap>
