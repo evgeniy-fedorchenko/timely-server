@@ -39,6 +39,9 @@ class EventMapper extends AbstractMapper<Event, EventDto> {
                 .date(userDataEntity.getDate())
                 .workDuration(userDataEntity.getWorkDuration())
                 .comment(userDataEntity.getComment())
+                .status(userDataEntity.getStatus())
+                .deletedAt(userDataEntity.getDeletedAt())
+                .changedAt(userDataEntity.getChangedAt())
                 .build();
     }
 

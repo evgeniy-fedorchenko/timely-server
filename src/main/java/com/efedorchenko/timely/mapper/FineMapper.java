@@ -39,6 +39,8 @@ class FineMapper extends AbstractMapper<Fine, FineDto> {
                 .date(userDataEntity.getDate())
                 .description(userDataEntity.getDescription())
                 .amount(userDataEntity.getAmount())
+                .deletedAt(userDataEntity.getDeletedAt())
+                .changedAt(userDataEntity.getChangedAt())
                 .build();
     }
 

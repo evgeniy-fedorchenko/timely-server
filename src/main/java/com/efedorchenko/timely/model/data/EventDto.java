@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
+import com.efedorchenko.timely.entity.EventStatus;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.model.validation.ValidDuration;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,6 +30,9 @@ public class EventDto extends UserDataDto {
     @Nullable
     @Size(max = Constant.COMMENT_MAX_LEN)
     private final String comment;
+
+    @Nullable
+    private final EventStatus status;
 
     @Override
     public UserDataType getType() {
