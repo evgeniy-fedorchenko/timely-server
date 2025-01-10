@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Getter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)

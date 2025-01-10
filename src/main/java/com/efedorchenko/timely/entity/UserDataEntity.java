@@ -18,12 +18,18 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Setter
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @MappedSuperclass
 public abstract sealed class UserDataEntity permits Event, Fine {
+
+    private static final DateTimeFormatter STR_UTC_FORMATTER = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'")
+            .withZone(ZoneOffset.UTC);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +57,13 @@ public abstract sealed class UserDataEntity permits Event, Fine {
 
     @Override
     public String toString() {
-        return "UserDataEntity{id=%d, userId=%s}".formatted(id, user.getId().toString());
+        return "UserDataEntity{id=%d, userId=%s, deletedAt=%s, changedAt=%s}"
+                .formatted(
+                        id,
+                        user.getId().toString(),
+                        deletedAt == null ? "null" : STR_UTC_FORMATTER.format(deletedAt),
+                        changedAt == null ? "null" : STR_UTC_FORMATTER.format(changedAt)
+                );
     }
 
     public abstract boolean equalsLocal(UserDataEntity otherEntity);
