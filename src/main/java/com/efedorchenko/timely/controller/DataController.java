@@ -62,7 +62,7 @@ public class DataController {
             @AuthenticationPrincipal UUID userId,
             @PathVariable UserDataType dataType,
             @RequestParam(required = false) UUID targetUserId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam Instant since) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(required = false) Instant since) {
         return targetUserId == null
                 ? userDataService.getUpdates(userId, dataType, since)
                 : userDataService.getUpdates(targetUserId, dataType, since);

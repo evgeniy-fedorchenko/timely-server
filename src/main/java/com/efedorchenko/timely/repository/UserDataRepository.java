@@ -30,7 +30,7 @@ public interface UserDataRepository<E extends UserDataEntity> extends JpaReposit
          throw ExceptionTemplates.SVR_VAR_15.get();
      }
 
-     default List<E> getDataByUserIdAndChangedAtBefore(UUID userId, Instant changeAt) {
+     default List<E> getDataByUserIdAndChangedAtAfter(UUID userId, Instant changeAt) {
         throw ExceptionTemplates.SVR_VAR_15.get();
      }
 }

@@ -22,5 +22,5 @@ public interface FineRepository extends UserDataRepository<Fine> {
     Optional<Fine> findByUserIdAndDate(UUID userId, LocalDate date);
 
     @Override
-    List<Fine> getDataByUserIdAndChangedAtBefore(UUID userId, Instant changedAt);
+    List<Fine> getDataByUserIdAndChangedAtAfter(UUID userId, Instant changedAt);
 }

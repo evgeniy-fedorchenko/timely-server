@@ -131,9 +131,12 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserDataDto> getUpdates(UUID userId, UserDataType dataType, Instant since) {
+    public List<UserDataDto> getUpdates(UUID userId, UserDataType dataType, @Nullable Instant since) {
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
-        List<UserDataEntity> foundEntities = repository.getDataByUserIdAndChangedAtBefore(userId, since);
+        if (since == null) {
+            since = Instant.EPOCH;
+        }
+        List<UserDataEntity> foundEntities = repository.getDataByUserIdAndChangedAtAfter(userId, since);
         return userDataMapper.map(foundEntities);
     }
 

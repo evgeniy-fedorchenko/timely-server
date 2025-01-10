@@ -2,6 +2,7 @@ package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.model.data.UserDataModifyDto;
 import com.efedorchenko.timely.model.data.UserDataType;
+import jakarta.annotation.Nullable;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface UserDataService<D, RANGE_REQ> {
 
     List<D> getRange(RANGE_REQ dataRangeRequest, UserDataType dataType);
 
-    List<D> getUpdates(UUID userId, UserDataType dataType, Instant since);
+    List<D> getUpdates(UUID userId, UserDataType dataType, @Nullable Instant since);
 
     void changeData(UUID userId, UserDataModifyDto newData);
 }

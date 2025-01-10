@@ -22,5 +22,5 @@ public interface EventRepository extends UserDataRepository<Event> {
     Optional<Event> findByUserIdAndDate(UUID userId, LocalDate date);
 
     @Override
-    List<Event> getDataByUserIdAndChangedAtBefore(UUID userId, Instant changeAt);
+    List<Event> getDataByUserIdAndChangedAtAfter(UUID userId, Instant changeAt);
 }
