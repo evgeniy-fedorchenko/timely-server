@@ -19,4 +19,8 @@ public class SpaceMapper {
 
         return space;
     }
+
+    public SpaceDto map(Space space) {
+        return new SpaceDto(space.getName());
+    }
 }

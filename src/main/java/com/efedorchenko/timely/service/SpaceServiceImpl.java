@@ -6,14 +6,17 @@ import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.SpaceMapper;
 import com.efedorchenko.timely.mapper.UserMapper;
 import com.efedorchenko.timely.model.GetMembersResponse;
+import com.efedorchenko.timely.model.SpaceConnectResponse;
 import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.repository.SpaceRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
+import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,22 +40,12 @@ public class SpaceServiceImpl implements SpaceService {
     private final ExecutorService executorOfVirtual;
     private final UserMapper userMapper;
     private final SpaceMapper spaceMapper;
+    private final UserDetailsServiceImpl userDetailsService;
     private final SpaceRepository spaceRepository;
     private final UserEntityRepository userEntityRepository;
 
     private final Function<String, String> keyGenerator = prefix ->
             prefix + UUID.randomUUID().toString().substring(KEY_LEN_FACTOR).replaceAll("-", "");
-
-    /**
-     * Поиск юзера по {@code userId}, создание пространства,
-     * добавление роли {@link RoleType#CREATOR} к {@link UserDataServiceImpl}
-     * и добавление свежесозданного пространства к найденному юзеру
-     */
-    @Override
-    @Transactional
-    public SpaceKeys create(UUID userId, SpaceCreateDto spaceCreateDto) {
-        return create(userId, spaceCreateDto, createDetachedKeys());
-    }
 
     @Override
     @Transactional
@@ -122,12 +115,43 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     @Transactional
     public boolean leaveSpace(UUID userId) {
-        return false;
+        return disconnectFromOurSpace(userId);
     }
 
     @Override
     @Transactional
-    public boolean detachUser(UUID userId, UUID targetUserId) {
-        return false;
+    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
+    public boolean detachUser(UUID targetUserId) {
+        return disconnectFromOurSpace(targetUserId);
+    }
+
+    @Override
+    @Transactional
+    public SpaceConnectResponse connectToSpace(UUID userId, String spaceKey) {
+        return spaceRepository.findByWorkerKey(spaceKey)
+                .map(space -> connectUserToSpace(userId, RoleType.WORKER, space))
+                .orElseGet(() -> spaceRepository.findByBossKey(spaceKey)
+                        .map(space -> connectUserToSpace(userId, RoleType.BOSS, space))
+                        .orElse(SpaceConnectResponse.fail())
+                );
+    }
+
+    private boolean disconnectFromOurSpace(UUID targetUserId) {
+        return userEntityRepository.findById(targetUserId)
+                .map(user -> {
+                    user.setConsistsInSpace(null);
+                    userDetailsService.addRole(RoleType.WORKER, targetUserId);
+                    return userEntityRepository.save(user);
+                }).isPresent();
+    }
+
+    private SpaceConnectResponse connectUserToSpace(UUID userId, RoleType newRole, Space space) {
+        CompletableFuture.runAsync(() -> {
+            UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
+            userEntity.setConsistsInSpace(space);
+            userDetailsService.addRole(newRole, userId);
+            userEntityRepository.save(userEntity);
+        });
+        return SpaceConnectResponse.success(newRole, spaceMapper.map(space));
     }
 }
