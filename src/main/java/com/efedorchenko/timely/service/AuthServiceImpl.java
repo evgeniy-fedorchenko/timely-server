@@ -52,11 +52,9 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
 
                     UUID primaryKey = UUID.randomUUID();
                     UserDetailsImpl userDetails = userMapper.toUserDetailsImpl(primaryKey, request);
-                    JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
-
                     AuthData.Builder authDataBuilder = AuthData.builder()
                             .userId(primaryKey)
-                            .jwtToken(jwtUtil.generateToken(jwtTokenData))
+                            .jwtToken(jwtUtil.generateToken(JwtTokenData.fromDetails(userDetails)))
                             .role(request.getRole());
 
                     SpaceKeys detachedKeys;
@@ -82,12 +80,8 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
                         }
                     }, executorOfVirtual);
 
-                    String spaceName = findedSpace == null
-                            ? request.getCreatingSpace().getName()
-                            : findedSpace.getName();
-
                     return AuthResponse.builder()
-                            .userData(UserData.fromRequest(request, spaceName))
+                            .userData(UserData.fromRequest(request, findedSpace))
                             .authData(authDataBuilder.build())
                             .build();
                 });

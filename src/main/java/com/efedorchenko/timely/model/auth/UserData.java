@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.auth;
 
+import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserEntity;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
@@ -18,9 +19,16 @@ public class UserData {
     @Nullable
     private final Integer rate;
 
+    @Nullable
     private final String spaceName;
 
-    public static UserData fromRequest(RegisterRequest request, String spaceName) {
+    public static UserData fromRequest(RegisterRequest request, @Nullable Space space) {
+        String spaceName = null;
+        if (space != null) {
+            spaceName = space.getName();
+        } else if (request.getCreatingSpace() != null) {
+            spaceName = request.getCreatingSpace().getName();
+        }
         return new UserData(request.getName(), request.getPosition(), request.getRate(), spaceName);
     }
 
