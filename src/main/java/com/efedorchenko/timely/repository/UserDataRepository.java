@@ -22,15 +22,15 @@ import java.util.UUID;
 @EntityType(UserDataType.PARENT)
 public interface UserDataRepository<E extends UserDataEntity> extends JpaRepository<E, Long> {
 
-    default List<E> getListOfUserData(UUID userId, int monthUidStart, int monthUidEnd) {
+    default List<E> findByUserIdAndMonthUidBetween(UUID userId, int monthUid, int monthUid2) {
         throw ExceptionTemplates.SVR_VAR_15.get();
     }
 
-     default Optional<E> findByUserIdAndDate(UUID userId, LocalDate date) {
-         throw ExceptionTemplates.SVR_VAR_15.get();
-     }
-
-     default List<E> getDataByUserIdAndChangedAtAfter(UUID userId, Instant changeAt) {
+    default Optional<E> findByUserIdAndDate(UUID userId, LocalDate date) {
         throw ExceptionTemplates.SVR_VAR_15.get();
-     }
+    }
+
+    default List<E> getDataByUserIdAndChangedAtAfter(UUID userId, Instant changeAt) {
+        throw ExceptionTemplates.SVR_VAR_15.get();
+    }
 }

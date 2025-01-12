@@ -58,7 +58,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
      *
      * @param initiatorIdOfAdding авторизованный в данный момент юзер, который
      *                            инициирует добавление каких-то данных какому-то юзеру
-     * @param dataDto         данные объекта, которые нужно добавить какому-то юзеру.
+     * @param dataDto             данные объекта, которые нужно добавить какому-то юзеру.
      *                            Кому именно - берется из {@code userDataDto.getToUserId()}
      */
     @Override
@@ -125,8 +125,8 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         UUID userId = dataRangeRequest.getRequestedUserId();
 
         UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
-        List<UserDataEntity> foundEntities = repository.getListOfUserData(userId, startMonthUid, endMonthUid);
-        return userDataMapper.map(foundEntities);
+        List<UserDataEntity> entities = repository.findByUserIdAndMonthUidBetween(userId, startMonthUid, endMonthUid);
+        return userDataMapper.map(entities);
     }
 
     @Override
