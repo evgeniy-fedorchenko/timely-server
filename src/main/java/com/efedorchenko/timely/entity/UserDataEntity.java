@@ -57,12 +57,13 @@ public abstract sealed class UserDataEntity permits Event, Fine {
 
     @Override
     public String toString() {
-        return "UserDataEntity{id=%d, userId=%s, deletedAt=%s, changedAt=%s}"
+        return "UserDataEntity{id=%d, userId=%s, date:=%s, deletedAt=%s, changedAt=%s}"
                 .formatted(
                         id,
                         user.getId().toString(),
+                        STR_UTC_FORMATTER.format(date),
                         deletedAt == null ? "null" : STR_UTC_FORMATTER.format(deletedAt),
-                        changedAt == null ? "null" : STR_UTC_FORMATTER.format(changedAt)
+                        STR_UTC_FORMATTER.format(changedAt)
                 );
     }
 
