@@ -118,5 +118,4 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
     public void logout() {
         // TODO 02.11.2024 22:49: реализовать logout
     }
-
 }

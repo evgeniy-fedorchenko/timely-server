@@ -5,8 +5,8 @@ import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.SpaceMapper;
 import com.efedorchenko.timely.mapper.UserMapper;
-import com.efedorchenko.timely.model.MembersResult;
-import com.efedorchenko.timely.model.SpaceCreateDto;
+import com.efedorchenko.timely.model.GetMembersResponse;
+import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.repository.SpaceRepository;
@@ -56,11 +56,12 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     @Transactional
-    public SpaceKeys create(UUID userId, SpaceCreateDto spaceCreateDto, SpaceKeys spaceKeys) {
+    @PreAuthorize("hasAnyAuthority('CREATOR', 'MODERATOR')")
+    public SpaceKeys create(UUID userId, SpaceDto spaceDto, SpaceKeys spaceKeys) {
 
         CompletableFuture.runAsync(() -> {
             UserEntity creator = userEntityRepository.findById(userId).orElseThrow();
-            Space space = spaceMapper.map(spaceCreateDto, spaceKeys, creator);
+            Space space = spaceMapper.map(spaceDto, spaceKeys, creator);
             spaceRepository.save(space);
 
 //            Создатель пространства состоит в своем же пространстве
@@ -102,10 +103,10 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     @Transactional(readOnly = true)
-    public MembersResult getMembers(UUID userId, @jakarta.annotation.Nullable Instant since) {
+    public GetMembersResponse getMembers(UUID userId, @jakarta.annotation.Nullable Instant since) {
         boolean consistInSpace = userEntityRepository.findById(userId).map(UserEntity::getConsistsInSpace).isPresent();
         if (!consistInSpace) {
-            return MembersResult.notConsist();
+            return GetMembersResponse.youNotConsist();
         }
         Instant _since = since == null ? Instant.EPOCH : since;
         List<SpaceMember> members = userEntityRepository.findSpaceIdWhereConsist(userId)
@@ -115,7 +116,7 @@ public class SpaceServiceImpl implements SpaceService {
                 .map(userMapper::map)
                 .toList();
 
-        return MembersResult.withMembers(members);
+        return GetMembersResponse.with(members);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.model.auth;
 
-import com.efedorchenko.timely.model.SpaceCreateDto;
+import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.validation.AtLeastOneNotNull;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.model.validation.Email;
@@ -48,7 +48,7 @@ public class RegisterRequest {
 
     @Valid
     @Nullable
-    private final SpaceCreateDto creatingSpace;
+    private final SpaceDto creatingSpace;
 
     @Nullable
     @Size(max = Constant.SPACE_KEY_MAX_LEN)

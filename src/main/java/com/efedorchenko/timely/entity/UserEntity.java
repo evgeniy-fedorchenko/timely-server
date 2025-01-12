@@ -49,6 +49,7 @@ public class UserEntity {
     @OneToOne(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Space createdSpace;
 
+    @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consist_in_space_id")
     private Space consistsInSpace;

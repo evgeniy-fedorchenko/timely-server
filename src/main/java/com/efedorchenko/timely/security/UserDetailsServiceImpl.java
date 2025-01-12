@@ -7,18 +7,18 @@ import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.repository.RoleRepository;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.security.model.RoleType;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Log
-@Component
-@RequiredArgsConstructor
+@Service
+@AllArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final RoleRepository roleRepository;

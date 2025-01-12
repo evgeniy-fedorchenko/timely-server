@@ -31,7 +31,7 @@ public class SpaceController {
     private final SpaceService spaceService;
 
     @GetMapping
-    public MembersResult getMembers(
+    public GetMembersResponse getMembers(
             @AuthenticationPrincipal UUID userId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(required = false) Instant since) {
         return spaceService.getMembers(userId, since);

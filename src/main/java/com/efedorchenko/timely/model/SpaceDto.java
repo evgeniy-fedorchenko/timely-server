@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
-public class SpaceCreateDto {
+public class SpaceDto {
 
     @NotBlank
     @Size(max = Constant.SPACE_NAME_MAX_LEN)
