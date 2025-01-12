@@ -10,5 +10,6 @@
     <!-- id 503 --> <include file="add_column_changed-at_to_events.xml" relativeToChangelogFile="true"/>
     <!-- id 601 --> <include file="add_column_deleted-at_to_fines.xml"  relativeToChangelogFile="true"/>
     <!-- id 602 --> <include file="add_column_changed-at_to_fines.xml"  relativeToChangelogFile="true"/>
+    <!-- id 301 --> <include file="add_column_changed-at_to_users.xml"  relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

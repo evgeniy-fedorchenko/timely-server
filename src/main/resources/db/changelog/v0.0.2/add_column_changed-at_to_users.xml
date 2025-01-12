@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="301" author="evgeniyf">
+
+        <preConditions>
+            <tableExists schemaName="users" tableName="users"/>
+        </preConditions>
+
+        <comment>Add column 'changed_at' to table 'users.users'</comment>
+
+        <addColumn schemaName="users" tableName="users">
+            <column name="changed_at" type="timestamptz" defaultValue="1111-11-11 11:11:11.111111 +00:00">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <dropDefaultValue schemaName="users" tableName="users" columnName="changed_at"/>
+
+    </changeSet>
+
+</databaseChangeLog>
