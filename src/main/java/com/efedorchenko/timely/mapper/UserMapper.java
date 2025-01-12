@@ -14,6 +14,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Component
@@ -46,16 +47,19 @@ public class UserMapper {
         user.setPosition(registerRequest.getPosition());
         user.setRate(registerRequest.getRate());
         user.setConsistsInSpace(space);
+        user.setChangedAt(Instant.now());
 
         return user;
     }
 
     public SpaceMember map(UserEntity userEntity) {
-        return new SpaceMember(
-                userEntity.getId(),
-                userEntity.getName(),
-                userEntity.getPosition()
-        );
+        return SpaceMember.builder()
+                .userId(userEntity.getId())
+                .name(userEntity.getName())
+                .position(userEntity.getPosition())
+                .rate(userEntity.getRate())
+                .changedAt(userEntity.getChangedAt())
+                .build();
     }
 
     private Role getRole(RoleType roleType) {

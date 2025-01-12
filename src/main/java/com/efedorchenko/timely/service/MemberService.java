@@ -1,15 +1,16 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.model.SpaceMember;
+import com.efedorchenko.timely.model.MembersResult;
+import jakarta.annotation.Nullable;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface MemberService {
 
-    List<SpaceMember> getMembers(UUID userId);
+    MembersResult getMembers(UUID userId, @Nullable Instant since);
 
     boolean leaveSpace(UUID userId);
 
-    boolean kickedUser(UUID userId, UUID kickedUserId);
+    boolean detachUser(UUID userId, UUID kickedUserId);
 }

@@ -3,9 +3,10 @@ package com.efedorchenko.timely.controller;
 import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.model.SpaceMember;
+import com.efedorchenko.timely.model.MembersResult;
 import com.efedorchenko.timely.service.MemberService;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -30,14 +31,16 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping
-    public List<SpaceMember> getMembers(@AuthenticationPrincipal UUID userId) {
-        return memberService.getMembers(userId);
+    public MembersResult getMembers(
+            @AuthenticationPrincipal UUID userId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(required = false) Instant since) {
+        return memberService.getMembers(userId, since);
     }
 
     @GetMapping(path = "/kick")
     public boolean kick(@AuthenticationPrincipal UUID userId, @RequestParam(required = false) UUID kickedUserId) {
         return kickedUserId == null
                 ? memberService.leaveSpace(userId)
-                : memberService.kickedUser(userId, kickedUserId);
+                : memberService.detachUser(userId, kickedUserId);
     }
 }
