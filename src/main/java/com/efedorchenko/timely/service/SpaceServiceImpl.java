@@ -4,8 +4,11 @@ import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.SpaceMapper;
+import com.efedorchenko.timely.mapper.UserMapper;
+import com.efedorchenko.timely.model.MembersResult;
 import com.efedorchenko.timely.model.SpaceCreateDto;
 import com.efedorchenko.timely.model.SpaceKeys;
+import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.repository.SpaceRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.model.RoleType;
@@ -14,6 +17,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +35,7 @@ public class SpaceServiceImpl implements SpaceService {
     private static final String WORKER_PREFIX = "worker-";
 
     private final ExecutorService executorOfVirtual;
+    private final UserMapper userMapper;
     private final SpaceMapper spaceMapper;
     private final SpaceRepository spaceRepository;
     private final UserEntityRepository userEntityRepository;
@@ -92,5 +98,35 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     public SpaceKeys createDetachedKeys() {
         return new SpaceKeys(keyGenerator.apply(WORKER_PREFIX), keyGenerator.apply(BOSS_PREFIX));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MembersResult getMembers(UUID userId, @jakarta.annotation.Nullable Instant since) {
+        boolean consistInSpace = userEntityRepository.findById(userId).map(UserEntity::getConsistsInSpace).isPresent();
+        if (!consistInSpace) {
+            return MembersResult.notConsist();
+        }
+        Instant _since = since == null ? Instant.EPOCH : since;
+        List<SpaceMember> members = userEntityRepository.findSpaceIdWhereConsist(userId)
+                .map(spaceId -> userEntityRepository.findByConsistsInSpaceIdAndChangedAtAfter(spaceId, _since))
+                .stream()
+                .flatMap(List::stream)
+                .map(userMapper::map)
+                .toList();
+
+        return MembersResult.withMembers(members);
+    }
+
+    @Override
+    @Transactional
+    public boolean leaveSpace(UUID userId) {
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean detachUser(UUID userId, UUID targetUserId) {
+        return false;
     }
 }

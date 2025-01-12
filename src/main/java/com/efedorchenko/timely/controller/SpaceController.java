@@ -4,7 +4,7 @@ import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.MembersResult;
-import com.efedorchenko.timely.service.MemberService;
+import com.efedorchenko.timely.service.SpaceService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,24 +23,24 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Validated
 @AllArgsConstructor
 @RestController
-@RequestMapping(path = MemberController.MEMBERS_ENDPOINT, produces = APPLICATION_JSON_VALUE)
-public class MemberController {
+@RequestMapping(path = SpaceController.SPACES_ENDPOINT, produces = APPLICATION_JSON_VALUE)
+public class SpaceController {
 
-    static final String MEMBERS_ENDPOINT = ApplicationProperties.BASE_PATH + "/members";
+    static final String SPACES_ENDPOINT = ApplicationProperties.BASE_PATH + "/spaces";
 
-    private final MemberService memberService;
+    private final SpaceService spaceService;
 
     @GetMapping
     public MembersResult getMembers(
             @AuthenticationPrincipal UUID userId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(required = false) Instant since) {
-        return memberService.getMembers(userId, since);
+        return spaceService.getMembers(userId, since);
     }
 
     @GetMapping(path = "/kick")
     public boolean kick(@AuthenticationPrincipal UUID userId, @RequestParam(required = false) UUID kickedUserId) {
         return kickedUserId == null
-                ? memberService.leaveSpace(userId)
-                : memberService.detachUser(userId, kickedUserId);
+                ? spaceService.leaveSpace(userId)
+                : spaceService.detachUser(userId, kickedUserId);
     }
 }

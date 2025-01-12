@@ -1,11 +1,13 @@
 package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.Space;
+import com.efedorchenko.timely.model.MembersResult;
 import com.efedorchenko.timely.model.SpaceCreateDto;
 import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.security.model.RoleType;
 import org.springframework.lang.Nullable;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public interface SpaceService {
@@ -21,4 +23,12 @@ public interface SpaceService {
     SpaceKeys getKeys(UUID userId);
 
     SpaceKeys createDetachedKeys();
+
+    MembersResult getMembers(UUID userId, @Nullable Instant since);
+
+    boolean leaveSpace(UUID userId);
+
+    boolean detachUser(UUID userId, UUID targetUserId);
+
+
 }
