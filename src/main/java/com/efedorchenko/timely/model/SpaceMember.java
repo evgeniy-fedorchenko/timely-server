@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model;
 
+import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,8 @@ public class SpaceMember {
     private final String name;
 
     private final String position;
+
+    private final RoleType role;
 
     @Nullable
     private final Integer rate;

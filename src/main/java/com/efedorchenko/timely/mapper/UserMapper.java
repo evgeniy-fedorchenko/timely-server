@@ -52,11 +52,12 @@ public class UserMapper {
         return user;
     }
 
-    public SpaceMember map(UserEntity userEntity) {
+    public SpaceMember map(UserEntity userEntity, RoleType roleType) {
         return SpaceMember.builder()
                 .userId(userEntity.getId())
                 .name(userEntity.getName())
                 .position(userEntity.getPosition())
+                .role(roleType)
                 .rate(userEntity.getRate())
                 .changedAt(userEntity.getChangedAt())
                 .build();

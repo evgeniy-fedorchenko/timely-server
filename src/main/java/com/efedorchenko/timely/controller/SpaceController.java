@@ -48,7 +48,8 @@ public class SpaceController {
     }
 
     @PatchMapping
-    public SpaceConnectResponse connectToSpace(@AuthenticationPrincipal UUID userId, @NotBlank String spaceKey) {
+    public SpaceConnectResponse connectToSpace(@AuthenticationPrincipal UUID userId,
+                                               @RequestParam(name = "key") @NotBlank String spaceKey) {
         return spaceService.connectToSpace(userId, spaceKey);
     }
 }

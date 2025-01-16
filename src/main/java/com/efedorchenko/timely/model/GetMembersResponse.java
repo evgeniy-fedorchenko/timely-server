@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @ToString
@@ -15,12 +16,14 @@ public class GetMembersResponse {
 
     private final boolean youConsistInSpace;
     private final List<SpaceMember> members;
+    private final List<UUID> actualIds;
+
 
     public static GetMembersResponse youNotConsist() {
-        return new GetMembersResponse(false, Collections.emptyList());
+        return new GetMembersResponse(false, Collections.emptyList(), Collections.emptyList());
     }
 
-    public static GetMembersResponse with(List<SpaceMember> members) {
-        return new GetMembersResponse(true, members);
+    public static GetMembersResponse with(List<SpaceMember> members, List<UUID> actualIds) {
+        return new GetMembersResponse(true, members, actualIds);
     }
 }

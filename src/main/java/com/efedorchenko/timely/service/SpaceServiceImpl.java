@@ -11,6 +11,7 @@ import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.repository.SpaceRepository;
+import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
@@ -41,6 +42,7 @@ public class SpaceServiceImpl implements SpaceService {
     private final UserMapper userMapper;
     private final SpaceMapper spaceMapper;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsRepository userDetailsRepository;
     private final SpaceRepository spaceRepository;
     private final UserEntityRepository userEntityRepository;
 
@@ -96,20 +98,25 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     @Transactional(readOnly = true)
-    public GetMembersResponse getMembers(UUID userId, @jakarta.annotation.Nullable Instant since) {
-        boolean consistInSpace = userEntityRepository.findById(userId).map(UserEntity::getConsistsInSpace).isPresent();
-        if (!consistInSpace) {
+    public GetMembersResponse getMembers(UUID userId, @Nullable Instant since) {
+        Optional<Long> spaceIdOpt = userEntityRepository.findSpaceIdWhereConsist(userId);
+        if (spaceIdOpt.isEmpty()) {
             return GetMembersResponse.youNotConsist();
         }
+        Long spaceId = spaceIdOpt.get();
+        CompletableFuture<List<UUID>> actualIds =
+                CompletableFuture.supplyAsync(() -> userEntityRepository.findAllIdByConsistsInSpaceId(spaceId));
+
         Instant _since = since == null ? Instant.EPOCH : since;
-        List<SpaceMember> members = userEntityRepository.findSpaceIdWhereConsist(userId)
-                .map(spaceId -> userEntityRepository.findByConsistsInSpaceIdAndChangedAtAfter(spaceId, _since))
+        List<SpaceMember> members = userEntityRepository.findByConsistsInSpaceIdAndChangedAtAfter(spaceId, _since)
                 .stream()
-                .flatMap(List::stream)
-                .map(userMapper::map)
+                .map(userEntity -> {
+                    RoleType roleType = userDetailsRepository.findRoleTypeById(userEntity.getId()).orElseThrow();
+                    return userMapper.map(userEntity, roleType);
+                })
                 .toList();
 
-        return GetMembersResponse.with(members);
+        return GetMembersResponse.with(members, actualIds.join());
     }
 
     @Override

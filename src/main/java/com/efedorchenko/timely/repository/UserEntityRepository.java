@@ -14,5 +14,8 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, UUID> {
     @Query("SELECT u.consistsInSpace.id FROM UserEntity u WHERE u.id = :userId ")
     Optional<Long> findSpaceIdWhereConsist(UUID userId);
 
+    @Query("SELECT u.id FROM UserEntity u WHERE u.consistsInSpace.id = :spaceId")
+    List<UUID> findAllIdByConsistsInSpaceId(Long spaceId);
+
     List<UserEntity> findByConsistsInSpaceIdAndChangedAtAfter(Long spaceId, Instant changedAt);
 }
