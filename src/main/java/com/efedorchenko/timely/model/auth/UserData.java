@@ -33,11 +33,12 @@ public class UserData {
     }
 
     public static UserData fromEntity(UserEntity entity) {
+        Space space = entity.getConsistsInSpace();
         return new UserData(
                 entity.getName(),
                 entity.getPosition(),
                 entity.getRate(),
-                entity.getConsistsInSpace().getName()
+                space == null ? null : space.getName()
         );
     }
 }
