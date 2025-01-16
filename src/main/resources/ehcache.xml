@@ -12,4 +12,12 @@
             <offheap unit="MB">10</offheap>
         </resources>
     </cache>
+    <cache alias="roles_by_user_id">
+        <key-type>java.util.UUID</key-type>
+        <value-type>com.efedorchenko.timely.security.model.RoleType</value-type>
+        <resources>
+            <heap>1000</heap>
+            <offheap unit="MB">10</offheap>
+        </resources>
+    </cache>
 </config>

@@ -8,6 +8,7 @@ import com.efedorchenko.timely.repository.RoleRepository;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+
+import static com.efedorchenko.timely.configuration.ApplicationProperties.ROLES_BY_USER_ID_CACHE_NAME;
 
 @Log
 @Service
@@ -32,6 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = ROLES_BY_USER_ID_CACHE_NAME, key = "#userId")
     public void addRole(RoleType roleType, UUID userId) {
         UserDetailsImpl userDetails = userDetailsRepository.findById(userId)
                 .orElseThrow(() -> ExceptionTemplates.SVR_VAR13.apply(userId, roleType));
