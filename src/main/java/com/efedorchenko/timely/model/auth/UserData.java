@@ -2,6 +2,7 @@ package com.efedorchenko.timely.model.auth;
 
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserData {
 
     private final String name;

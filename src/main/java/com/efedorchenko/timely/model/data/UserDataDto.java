@@ -1,7 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @Getter
 @ToString
 @SuperBuilder
-@JsonIgnoreProperties(ignoreUnknown = true)   // Временно, чтобы игнорировать aapId
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventDto.class, name = EventDto.TYPE),

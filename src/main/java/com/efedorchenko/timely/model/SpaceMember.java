@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.model;
 
 import com.efedorchenko.timely.security.model.RoleType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceMember {
 
     private final UUID userId;
