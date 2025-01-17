@@ -1,7 +1,6 @@
 package com.efedorchenko.timely.model.auth;
 
 import com.efedorchenko.timely.model.SpaceDto;
-import com.efedorchenko.timely.model.validation.AtLeastOneNotNull;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.model.validation.Email;
 import com.efedorchenko.timely.security.model.RoleType;
@@ -19,7 +18,7 @@ import org.springframework.lang.Nullable;
 @Getter
 @ToString
 @AllArgsConstructor
-@AtLeastOneNotNull({ "creatingSpace", "spaceKey" })
+//@AtLeastOneNotNull({ "creatingSpace", "spaceKey" })
 public class RegisterRequest {
 
     @Email
