@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.service;
 
+import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
@@ -111,8 +112,8 @@ public class SpaceServiceImpl implements SpaceService {
         List<SpaceMember> members = userEntityRepository.findByConsistsInSpaceIdAndChangedAtAfter(spaceId, _since)
                 .stream()
                 .map(userEntity -> {
-                    RoleType roleType = userDetailsRepository.findRoleTypeById(userEntity.getId()).orElseThrow();
-                    return userMapper.map(userEntity, roleType);
+                    Role role = userDetailsRepository.findRoleById(userEntity.getId()).orElseThrow();
+                    return userMapper.map(userEntity, role.getRoleType());
                 })
                 .toList();
 

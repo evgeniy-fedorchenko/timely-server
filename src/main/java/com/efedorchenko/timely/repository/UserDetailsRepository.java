@@ -2,7 +2,6 @@ package com.efedorchenko.timely.repository;
 
 import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
-import com.efedorchenko.timely.security.model.RoleType;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +16,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsImpl, UU
 
     Optional<UserDetails> findByUsername(String username);
 
+    @Cacheable(cacheNames = ROLES_BY_USER_ID_CACHE_NAME, unless = "#result == null", key = "#userId")
     @Query("SELECT u.role FROM UserDetailsImpl u WHERE u.id = :userId")
     Optional<Role> findRoleById(UUID userId);
-
-    @Cacheable(cacheNames = ROLES_BY_USER_ID_CACHE_NAME, unless = "#result == null", key = "#userId")
-    @Query("SELECT u.role.roleType FROM UserDetailsImpl u WHERE u.id = :userId")
-    Optional<RoleType> findRoleTypeById(UUID userId);
 }
