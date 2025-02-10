@@ -13,8 +13,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Objects;
-
 @Entity
 @Table(
         name = "fines",
@@ -41,15 +39,4 @@ public final class Fine extends UserDataEntity {
     public UserDataType getType() {
         return UserDataType.FINE;
     }
-
-    @Override
-    public boolean equalsLocal(UserDataEntity otherEntity) {
-        if (otherEntity instanceof Fine otherFine) {
-            return Objects.equals(this.description, otherFine.description)
-                    && Objects.equals(this.amount, otherFine.amount);
-        } else {
-            return false;
-        }
-    }
-
 }

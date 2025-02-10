@@ -70,6 +70,4 @@ public abstract sealed class UserDataEntity permits Event, Fine {
                         STR_UTC_FORMATTER.format(changedAt)
                 );
     }
-
-    public abstract boolean equalsLocal(UserDataEntity otherEntity);
 }

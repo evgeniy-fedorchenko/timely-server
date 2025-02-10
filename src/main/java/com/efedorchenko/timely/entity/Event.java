@@ -19,7 +19,6 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.Duration;
-import java.util.Objects;
 
 @Entity
 @Table(
@@ -53,15 +52,5 @@ public final class Event extends UserDataEntity {
     @Override
     public UserDataType getType() {
         return UserDataType.EVENT;
-    }
-
-    @Override
-    public boolean equalsLocal(UserDataEntity otherEntity) {
-        if (otherEntity instanceof Event otherEvent) {
-            return Objects.equals(this.workDuration, otherEvent.workDuration)
-                    && Objects.equals(this.comment, otherEvent.comment);
-        } else {
-            return false;
-        }
     }
 }
