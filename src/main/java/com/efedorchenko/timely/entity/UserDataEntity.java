@@ -1,8 +1,10 @@
 package com.efedorchenko.timely.entity;
 
+import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,9 +49,11 @@ public abstract sealed class UserDataEntity permits Event, Fine {
     private UserEntity user;
 
     @Nullable
+    @Column(precision = ApplicationProperties.DB_TIMESTAMP_PRECISION)
     private Instant deletedAt;
 
     @UpdateTimestamp
+    @Column(precision = ApplicationProperties.DB_TIMESTAMP_PRECISION)
     private Instant changedAt;
 
     @JsonIgnore

@@ -14,10 +14,12 @@
         <comment>Add column 'changed_at' to table 'data.events'</comment>
 
         <addColumn schemaName="data" tableName="events">
-            <column name="changed_at" type="timestamptz">
+            <column name="changed_at" type="timestamptz(3)" defaultValue="1111-11-11 11:11:11.111 +00:00">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
+
+        <dropDefaultValue schemaName="data" tableName="events" columnName="changed_at"/>
 
         <createIndex indexName="events_user_id_changed_at_idx" schemaName="data" tableName="events">
             <column name="user_id"/>

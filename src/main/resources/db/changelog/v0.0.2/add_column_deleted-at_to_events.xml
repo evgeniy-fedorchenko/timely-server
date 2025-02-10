@@ -14,7 +14,7 @@
         <comment>Add column 'deleted_at' to table 'data.events'</comment>
 
         <addColumn schemaName="data" tableName="events">
-            <column name="deleted_at" type="timestamptz">
+            <column name="deleted_at" type="timestamptz(3)">
                 <constraints nullable="true"/>
             </column>
         </addColumn>

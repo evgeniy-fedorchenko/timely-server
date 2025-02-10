@@ -6,18 +6,18 @@ import jakarta.persistence.Converter;
 import java.time.Duration;
 
 /**
- * В БД храним {@link Event#workDuration} с точностью до секунды, так как более высокая точность ни к чему
+ * В БД храним {@link Event#workDuration} с точностью до минуты, так как более высокая точность ни к чему
  */
 @Converter
 public class WorkDurationConverter implements AttributeConverter<Duration, Long> {
 
     @Override
     public Long convertToDatabaseColumn(Duration attribute) {
-        return attribute.toSeconds();
+        return attribute.toMinutes();
     }
 
     @Override
     public Duration convertToEntityAttribute(Long dbData) {
-        return Duration.ofSeconds(dbData);
+        return Duration.ofMinutes(dbData);
     }
 }
