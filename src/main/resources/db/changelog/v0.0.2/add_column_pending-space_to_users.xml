@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="302" author="evgeniyf">
+
+        <preConditions>
+            <tableExists schemaName="users" tableName="users"/>
+        </preConditions>
+
+        <comment>Add column 'space_status' to table 'users.users'</comment>
+
+        <sql>
+            CREATE TYPE users.space_consist_status AS ENUM ('PENDING_WORKER', 'PENDING_BOSS', 'NONE', 'MEMBER');
+        </sql>
+
+        <addColumn schemaName="users" tableName="users">
+            <column name="space_status" type="users.space_consist_status" defaultValue="MEMBER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <dropDefaultValue schemaName="users" tableName="users" columnName="space_status"/>
+
+    </changeSet>
+</databaseChangeLog>
