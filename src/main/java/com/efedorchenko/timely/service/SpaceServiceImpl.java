@@ -1,18 +1,18 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.Role;
 import com.efedorchenko.timely.entity.Space;
+import com.efedorchenko.timely.entity.SpaceStatus;
 import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.SpaceMapper;
-import com.efedorchenko.timely.mapper.UserMapper;
-import com.efedorchenko.timely.model.GetMembersResponse;
+import com.efedorchenko.timely.model.AcceptMember;
+import com.efedorchenko.timely.model.MemberOpResult;
+import com.efedorchenko.timely.model.MembersResponse;
 import com.efedorchenko.timely.model.SpaceConnectResponse;
 import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.model.SpaceMember;
 import com.efedorchenko.timely.repository.SpaceRepository;
-import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,10 +41,8 @@ public class SpaceServiceImpl implements SpaceService {
     private static final String WORKER_PREFIX = "worker-";
 
     private final ExecutorService executorOfVirtual;
-    private final UserMapper userMapper;
     private final SpaceMapper spaceMapper;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserDetailsRepository userDetailsRepository;
     private final SpaceRepository spaceRepository;
     private final UserEntityRepository userEntityRepository;
 
@@ -99,67 +98,121 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     @Transactional(readOnly = true)
-    public GetMembersResponse getMembers(UUID userId, @Nullable Instant since) {
-        Optional<Long> spaceIdOpt = userEntityRepository.findSpaceIdWhereConsist(userId);
+    public MembersResponse getMembers(UUID userId, @Nullable Instant since, boolean withJoinRequests) {
+        Optional<Space> spaceIdOpt = userEntityRepository.findSpaceWhereConsist(userId);
         if (spaceIdOpt.isEmpty()) {
-            return GetMembersResponse.youNotConsist();
+            SpaceStatus spaceStatus = userEntityRepository.findSpaceStatusByUserId(userId).orElse(SpaceStatus.NONE);
+            return MembersResponse.emptyWith(spaceStatus);
         }
-        Long spaceId = spaceIdOpt.get();
-        CompletableFuture<List<UUID>> actualIds =
-                CompletableFuture.supplyAsync(() -> userEntityRepository.findAllIdByConsistsInSpaceId(spaceId));
+        Space space = spaceIdOpt.get();
+        CompletableFuture<List<UUID>> actualIds = CompletableFuture.supplyAsync(
+                () -> userEntityRepository.findIdsIdByConsistsInSpace(space.getId()),
+                executorOfVirtual
+        );
 
         Instant _since = since == null ? Instant.EPOCH : since;
-        List<SpaceMember> members = userEntityRepository.findByConsistsInSpaceIdAndChangedAtAfter(spaceId, _since)
-                .stream()
-                .map(userEntity -> {
-                    Role role = userDetailsRepository.findRoleById(userEntity.getId()).orElseThrow();
-                    return userMapper.map(userEntity, role.getRoleType());
-                })
-                .toList();
+        EnumSet<SpaceStatus> searchStatuses = EnumSet.of(SpaceStatus.MEMBER);
+        if (withJoinRequests) {
+            searchStatuses.add(SpaceStatus.PENDING_BOSS);
+            searchStatuses.add(SpaceStatus.PENDING_WORKER);
+        }
+        List<SpaceMember> members = userEntityRepository.findMembers(space.getId(), _since, searchStatuses);
 
-        return GetMembersResponse.with(members, actualIds.join());
+        SpaceDto spaceDto = spaceMapper.map(space);
+        return MembersResponse.of(members, spaceDto, actualIds.join());
     }
 
+    /**
+     * Покинуть пространство, в котором состоит юзер
+     *
+     * @param userId, который покидает пространство
+     */
     @Override
     @Transactional
     public boolean leaveSpace(UUID userId) {
         return disconnectFromOurSpace(userId);
     }
 
+    /**
+     * Выгнать другого юзера из своего пространства
+     *
+     * @param initiatorUserId юзер, который инициирует операцию изгнания
+     * @param kickedUserId    юзер, которого выгоняют
+     */
     @Override
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
-    public boolean detachUser(UUID targetUserId) {
-        return disconnectFromOurSpace(targetUserId);
+    public boolean detachUser(UUID initiatorUserId, UUID kickedUserId) {
+        userDetailsService.checkAccessToSpaceOf(initiatorUserId, kickedUserId);
+        return disconnectFromOurSpace(kickedUserId);
     }
 
+    /**
+     * Подать заявку на вступление в пространство.
+     *
+     * @param userId   кто подает заявку
+     * @param spaceKey ключ для поиска пространства
+     */
     @Override
     @Transactional
-    public SpaceConnectResponse connectToSpace(UUID userId, String spaceKey) {
+    public SpaceConnectResponse requestConnectToSpace(UUID userId, String spaceKey) {
         return spaceRepository.findByWorkerKey(spaceKey)
-                .map(space -> connectUserToSpace(userId, RoleType.WORKER, space))
+                .map(space -> requestConnectToSpace(userId, RoleType.WORKER, space))
                 .orElseGet(() -> spaceRepository.findByBossKey(spaceKey)
-                        .map(space -> connectUserToSpace(userId, RoleType.BOSS, space))
-                        .orElse(SpaceConnectResponse.fail())
+                        .map(space -> requestConnectToSpace(userId, RoleType.BOSS, space))
+                        .orElse(SpaceConnectResponse.keyInvalid())
                 );
     }
 
-    private boolean disconnectFromOurSpace(UUID targetUserId) {
-        return userEntityRepository.findById(targetUserId)
-                .map(user -> {
-                    user.setConsistsInSpace(null);
-                    userDetailsService.addRole(RoleType.WORKER, targetUserId);
-                    return userEntityRepository.save(user);
-                }).isPresent();
+    /**
+     * Принять заявку юзера на вступление в пространство
+     *
+     * @param userId       userId, который принимает заявку
+     * @param acceptMember настройки юзера, которого принимают
+     */
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
+    public MemberOpResult acceptMember(UUID userId, AcceptMember acceptMember) {
+        UUID acceptedUserId = acceptMember.getAcceptedUserId();
+        userDetailsService.checkAccessToSpaceOf(userId, acceptedUserId);
+
+        return switch (userEntityRepository.findSpaceStatusByUserId(acceptedUserId).orElseThrow()) {
+            case PENDING_WORKER, PENDING_BOSS -> {
+                userEntityRepository.setStatus(acceptedUserId, SpaceStatus.MEMBER.name());
+                userDetailsService.addRole(acceptMember.getNewRole(), acceptedUserId);
+                yield MemberOpResult.success();
+            }
+            case NONE -> MemberOpResult.alreadyCanceled();
+            case MEMBER -> MemberOpResult.alreadyProcessed();
+        };
     }
 
-    private SpaceConnectResponse connectUserToSpace(UUID userId, RoleType newRole, Space space) {
+    private boolean disconnectFromOurSpace(UUID targetUserId) {
+        Optional<UserEntity> userEntityOpt = userEntityRepository.findById(targetUserId);
+        boolean isUserPresent = userEntityOpt.isPresent();
+        if (isUserPresent) {
+            UserEntity user = userEntityOpt.get();
+            CompletableFuture.runAsync(() -> {
+                user.setConsistsInSpace(null);
+                user.setSpaceStatus(SpaceStatus.NONE);
+                userDetailsService.addRole(RoleType.WORKER, targetUserId);
+                userEntityRepository.save(user);
+            }, executorOfVirtual);
+        }
+        return isUserPresent;
+    }
+
+    private SpaceConnectResponse requestConnectToSpace(UUID userId, RoleType newRole, Space space) {
+        SpaceStatus spaceStatus = newRole.getPreAcceptSpaceStatus();
         CompletableFuture.runAsync(() -> {
             UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
             userEntity.setConsistsInSpace(space);
+            userEntity.setSpaceStatus(spaceStatus);
             userDetailsService.addRole(newRole, userId);
             userEntityRepository.save(userEntity);
-        });
-        return SpaceConnectResponse.success(newRole, spaceMapper.map(space));
+        }, executorOfVirtual);
+
+        return SpaceConnectResponse.success(spaceStatus);
     }
 }

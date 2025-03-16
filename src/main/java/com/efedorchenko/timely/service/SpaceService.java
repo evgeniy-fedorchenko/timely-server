@@ -1,7 +1,9 @@
 package com.efedorchenko.timely.service;
 
 import com.efedorchenko.timely.entity.Space;
-import com.efedorchenko.timely.model.GetMembersResponse;
+import com.efedorchenko.timely.model.AcceptMember;
+import com.efedorchenko.timely.model.MemberOpResult;
+import com.efedorchenko.timely.model.MembersResponse;
 import com.efedorchenko.timely.model.SpaceConnectResponse;
 import com.efedorchenko.timely.model.SpaceDto;
 import com.efedorchenko.timely.model.SpaceKeys;
@@ -20,11 +22,13 @@ public interface SpaceService {
 
     SpaceKeys createDetachedKeys();
 
-    GetMembersResponse getMembers(UUID userId, Instant since);
+    MembersResponse getMembers(UUID userId, Instant since, boolean withJoinRequests);
 
     boolean leaveSpace(UUID userId);
 
-    boolean detachUser(UUID targetUserId);
+    boolean detachUser(UUID targetUserId, UUID kickedUserId);
 
-    SpaceConnectResponse connectToSpace(UUID userId, String spaceKey);
+    SpaceConnectResponse requestConnectToSpace(UUID userId, String spaceKey);
+
+    MemberOpResult acceptMember(UUID userId, AcceptMember acceptMember);
 }
