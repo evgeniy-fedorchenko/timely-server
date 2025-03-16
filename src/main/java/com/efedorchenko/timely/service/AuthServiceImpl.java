@@ -9,7 +9,6 @@ import com.efedorchenko.timely.model.SpaceKeys;
 import com.efedorchenko.timely.model.auth.AuthErrorCode;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
-import com.efedorchenko.timely.model.auth.UserData;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.JwtUtil;
@@ -20,7 +19,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -37,71 +35,81 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
     private final UserEntityRepository userEntityRepository;
     private final UserDetailsRepository userDetailsRepository;
 
+
+
     @Override
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) throws RuntimeException {
         return userDetailsRepository.findByUsername(request.getUsername())
-                .map(ignored -> AuthResponse.failWith(AuthErrorCode.ALREADY_REGISTERED))
-                .orElseGet(() -> {
-
-                    String spaceKey = request.getSpaceKey();
-                    Space findedSpace = spaceService.findSpace(spaceKey, request.getRole());
-                    if (spaceKey != null && findedSpace == null) {
-                        return AuthResponse.failWith(AuthErrorCode.SPACE_NOT_FOUND);
-                    }
-
-                    UUID primaryKey = UUID.randomUUID();
-                    UserDetailsImpl userDetails = userMapper.toUserDetailsImpl(primaryKey, request);
-                    AuthData.Builder authDataBuilder = AuthData.builder()
-                            .userId(primaryKey)
-                            .jwtToken(jwtUtil.generateToken(JwtTokenData.fromDetails(userDetails)))
-                            .role(request.getRole());
-
-                    SpaceKeys detachedKeys;
-                    boolean needCreateSpace;
-                    if (request.getCreatingSpace() != null) {
-                        if (request.getRole() != RoleType.CREATOR) {
-                            return AuthResponse.failWith(AuthErrorCode.SPACE_CREATION_PROHIBITED);
-                        }
-                        needCreateSpace = true;
-                        detachedKeys = spaceService.createDetachedKeys();
-                        authDataBuilder.generatedSpaceKeys(detachedKeys);
-                    } else {
-                        detachedKeys = null;
-                        needCreateSpace = false;
-                    }
-
-                    CompletableFuture.runAsync(() -> {
-                        UserEntity userEntity = userMapper.toUserEntity(primaryKey, request, findedSpace);
-                        userEntityRepository.save(userEntity);
-                        userDetailsRepository.save(userDetails);
-                        if (needCreateSpace) {
-                            spaceService.create(primaryKey, request.getCreatingSpace(), detachedKeys);
-                        }
-                    }, executorOfVirtual);
-
-                    return AuthResponse.builder()
-                            .userData(UserData.fromRequest(request, findedSpace))
-                            .authData(authDataBuilder.build())
-                            .build();
-                });
+                .map(ignored -> AuthResponse.error(AuthErrorCode.ALREADY_REGISTERED))
+                .orElseGet(() -> createUser(request));
     }
 
     @Override
     @Transactional(readOnly = true)
     public AuthResponse login(UUID userId) {
-        Optional<UserDetailsImpl> userDetailsOpt = userDetailsRepository.findById(userId);
-        if (userDetailsOpt.isEmpty()) {
-            return AuthResponse.failWith(AuthErrorCode.UNREGISTERED);  // Обычно Security бракует запрос еще у себя
+        return userDetailsRepository.findById(userId)
+                .map(this::loadUser)
+                .orElse(AuthResponse.error(AuthErrorCode.UNREGISTERED)); // Обычно Security бракует запрос еще у себя
+    }
+
+    @Override
+    public void logout() {
+        // TODO 02.11.2024 22:49: реализовать logout
+    }
+
+    private AuthResponse createUser(RegisterRequest request) {
+        String spaceKey = request.getSpaceKey();
+        Space findedSpace = spaceService.findSpace(spaceKey, request.getRole());
+        if (spaceKey != null && findedSpace == null) {
+            return AuthResponse.error(AuthErrorCode.SPACE_NOT_FOUND);
         }
-        UserDetailsImpl userDetails = userDetailsOpt.get();
+
+        RoleType initRole = request.getRole().doPreAccept();
+        UUID primaryKey = UUID.randomUUID();
+        UserDetailsImpl userDetails = userMapper.toUserDetailsImpl(primaryKey, request, initRole);
+        AuthData.Builder authDataBuilder = AuthData.builder()
+                .userId(primaryKey)
+                .jwtToken(jwtUtil.generateToken(JwtTokenData.fromDetails(userDetails)))
+                .role(initRole);
+
+        SpaceKeys detachedKeys;
+        boolean needCreateSpace;
+        if (request.getCreatingSpace() != null) {
+            if (request.getRole() != RoleType.CREATOR) {
+                return AuthResponse.error(AuthErrorCode.SPACE_CREATION_PROHIBITED);
+            }
+            needCreateSpace = true;
+            detachedKeys = spaceService.createDetachedKeys();
+            authDataBuilder.generatedSpaceKeys(detachedKeys);
+        } else {
+            detachedKeys = null;
+            needCreateSpace = false;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            UserEntity userEntity = userMapper.toUserEntity(primaryKey, request, findedSpace);
+            userEntityRepository.save(userEntity);
+            userDetailsRepository.save(userDetails);
+            if (needCreateSpace) {
+                spaceService.create(primaryKey, request.getCreatingSpace(), detachedKeys);
+            }
+        }, executorOfVirtual);
+
+        return AuthResponse.builder()
+                .userData(userMapper.map(request, findedSpace))
+                .authData(authDataBuilder.build())
+                .build();
+    }
+
+    private AuthResponse loadUser(UserDetailsImpl userDetails) {
+        UUID userId = userDetails.getId();
         UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow(); // have equals id
-        JwtTokenData jwtTokenData = JwtTokenData.fromDetails(userDetails);
         RoleType roleType = userDetails.getRole().getRoleType();
 
         AuthData.Builder authDataBuilder = AuthData.builder()
-                .userId(userDetails.getId())
-                .jwtToken(jwtUtil.generateToken(jwtTokenData))
+                .userId(userId)
+                .jwtToken(jwtUtil.generateToken(JwtTokenData.fromDetails(userDetails)))
                 .role(roleType);
 
         if (roleType.spaceOpsAccess()) {
@@ -109,13 +117,8 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
         }
         return AuthResponse.builder()
                 .isRegister(true)
-                .userData(UserData.fromEntity(userEntity))
+                .userData(userMapper.map(userEntity))
                 .authData(authDataBuilder.build())
                 .build();
-    }
-
-    @Override
-    public void logout() {
-        // TODO 02.11.2024 22:49: реализовать logout
     }
 }

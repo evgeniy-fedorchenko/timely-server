@@ -6,6 +6,7 @@ import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -17,9 +18,9 @@ import lombok.ToString;
 public class AuthResponse {
 
     private static final AuthErrorCode DEFAULT_ERROR_CODE = AuthErrorCode.OK;
-    private static final String DEFAULT_ERROR_MESSAGE = "OK";
+    private static final String DEFAULT_ERROR_MESSAGE = DEFAULT_ERROR_CODE.getDescription();
 
-    @lombok.Builder.Default
+    @Default
     private final boolean isRegister = true;
 
     /**
@@ -37,20 +38,18 @@ public class AuthResponse {
     private final UserData userData;
 
     /** Код ошибки авторизации */
-    @lombok.Builder.Default
+    @Default
     private final AuthErrorCode errorCode = DEFAULT_ERROR_CODE;
 
     /** Пояснение ошибки авторизации */
-    @lombok.Builder.Default
+    @Default
     private final String errorMessage = DEFAULT_ERROR_MESSAGE;
 
-    public static AuthResponse failWith(AuthErrorCode authErrorCode) {
-        return new AuthResponse(
-                false,
-                null,
-                null,
-                authErrorCode,
-                authErrorCode.getDescription()
-        );
+    public static AuthResponse error(AuthErrorCode authErrorCode) {
+        return AuthResponse.error(authErrorCode, authErrorCode.getDescription());
+    }
+
+    public static AuthResponse error(AuthErrorCode authErrorCode, String errorMessage) {
+        return new AuthResponse(false, null, null, authErrorCode, errorMessage);
     }
 }
