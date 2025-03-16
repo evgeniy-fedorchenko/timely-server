@@ -9,7 +9,7 @@ import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
-
+// TODO 22.02.2025 01:22: убрать этот класс, пусть jwtUtil генерит токен сразу из UserDetails
 @Getter
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

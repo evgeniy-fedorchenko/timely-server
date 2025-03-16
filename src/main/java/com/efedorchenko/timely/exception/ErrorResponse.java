@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @Builder(builderClassName = "Builder", access = AccessLevel.PROTECTED)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class ErrorResponse {
+public class ErrorResponse {
 
     private final String exName;
 

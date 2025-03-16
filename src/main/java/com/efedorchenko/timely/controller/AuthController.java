@@ -6,6 +6,8 @@ import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.auth.AuthErrorCode;
 import com.efedorchenko.timely.model.auth.AuthResponse;
 import com.efedorchenko.timely.model.auth.RegisterRequest;
+import com.efedorchenko.timely.security.LoginAuthenticationConverter;
+import com.efedorchenko.timely.security.model.Credentials;
 import com.efedorchenko.timely.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -35,9 +37,13 @@ public class AuthController {
 
     private final AuthService<RegisterRequest, AuthResponse> authService;
 
+    /**
+     * Используется {@link PostMapping} так как в запросе передается объект
+     * {@link Credentials}, который потребляется в {@link LoginAuthenticationConverter}
+     */
     @PostMapping(path = "/login")
     public ResponseEntity<AuthResponse> login(@AuthenticationPrincipal UUID userId) {
-        return computeResponseEntity(authService.login(userId));
+        return toResponseEntity(authService.login(userId));
     }
 
     @GetMapping(path = "/logout")
@@ -48,17 +54,13 @@ public class AuthController {
     @Log(Level.INFO)
     @PostMapping(path = "/reg", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        return computeResponseEntity(authService.register(registerRequest));
+        return toResponseEntity(authService.register(registerRequest));
     }
 
-    private ResponseEntity<AuthResponse> computeResponseEntity(AuthResponse response) {
-        if (response.isRegister()) {
-            return ResponseEntity.ok(response);
-        } else {
-            HttpStatus status = Optional.ofNullable(response.getErrorCode())
-                    .map(AuthErrorCode::getHttpStatus)
-                    .orElse(HttpStatus.BAD_REQUEST);
-            return ResponseEntity.status(status).body(response);
-        }
+    private ResponseEntity<AuthResponse> toResponseEntity(AuthResponse response) {
+        HttpStatus status = Optional.ofNullable(response.getErrorCode())
+                .map(AuthErrorCode::getHttpStatus)
+                .orElse(HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(status).body(response);
     }
 }

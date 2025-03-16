@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum AuthErrorCode {
 
-    /* 200 */ OK(HttpStatus.OK, "OK"),   // Default
+    /* 200 */ OK(HttpStatus.OK, "Operation successful"),   // Default
     /* 409 */ ALREADY_REGISTERED(HttpStatus.CONFLICT, "User already registered (username already exists)"),
     /* 401 */ UNREGISTERED(HttpStatus.UNAUTHORIZED, "Unknown user"),
     /* 404 */ SPACE_NOT_FOUND(HttpStatus.NOT_FOUND, "The specified space was not found"),

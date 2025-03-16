@@ -29,7 +29,7 @@ import static com.efedorchenko.timely.logging.Log.IgnoreAll;
 @Aspect
 @Component
 @AllArgsConstructor
-public class LogMethod {
+class LogMethod {
 
     private static final String INPUT_PATTERN = "-> (%s)";
     private static final String OUTPUT_PATTERN = "<- (%s)";
@@ -39,11 +39,11 @@ public class LogMethod {
     private final ExecutorService executorOfVirtual;
 
     @Pointcut("@annotation(log) || @within(log)")
-    public void logPointcut(Log log) {
+    void logPointcut(Log log) {
     }
 
     @Around(value = "logPointcut(log)", argNames = "joinPoint,log")
-    public Object logAround(ProceedingJoinPoint joinPoint, Log log) throws Throwable {
+    Object logAround(ProceedingJoinPoint joinPoint, Log log) throws Throwable {
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
 
@@ -51,10 +51,9 @@ public class LogMethod {
             return joinPoint.proceed();
         }
 
+        Logger logger = getLogger(method);
         Log logAnnotation = Optional.ofNullable(method.getAnnotation(Log.class)).orElse(log);
         LogAnnotationSupport logSupport = new LogAnnotationSupport(logAnnotation, method);
-
-        Logger logger = LoggerFactory.getLogger(method.getDeclaringClass().getName() + "." + method.getName());
         boolean enabledForLevel = logger.isEnabledForLevel(logSupport.getArgsLevel());
 
         if (enabledForLevel && !logSupport.needsIgnoreInvoke()) {
@@ -141,5 +140,10 @@ public class LogMethod {
         } catch (Throwable t) {
             log.error("Cannot logging result of method [{}]. Ex: {}", logger.getName(), t.getMessage());
         }
+    }
+
+    private Logger getLogger(Method method) {
+        String name = String.join(".", method.getDeclaringClass().getName(), method.getName());
+        return LoggerFactory.getLogger(name);
     }
 }

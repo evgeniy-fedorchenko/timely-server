@@ -2,11 +2,11 @@ package com.efedorchenko.timely.exception;
 
 import com.efedorchenko.timely.controller.AuthController;
 import com.efedorchenko.timely.controller.DataController;
+import com.efedorchenko.timely.controller.SpaceController;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.logging.Log.Ignore.Mode;
 import jakarta.annotation.Nullable;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 /**
@@ -26,8 +25,10 @@ import java.util.stream.Collectors;
  */
 @Log(Level.WARN)
 @Log.Ignore(Mode.ARGUMENTS)
-@RestControllerAdvice(assignableTypes = { AuthController.class, DataController.class })
+@RestControllerAdvice(assignableTypes = { AuthController.class, DataController.class, SpaceController.class })
 public class TimelyExceptionHandler {
+
+    // TODO 06.03.2025 20:03: обработать HttpMessageNotReadableException
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
@@ -75,9 +76,9 @@ public class TimelyExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    @ExceptionHandler({AuthorizationDeniedException.class,
+    @ExceptionHandler({ AuthorizationDeniedException.class,
             AccessDeniedException.class,
-            AuthenticationException.class})
+            AuthenticationException.class })
     public ResponseEntity<?> handleAuthException(Exception ex) throws Exception {
         throw ex;   // Not handle, only standard logging
     }

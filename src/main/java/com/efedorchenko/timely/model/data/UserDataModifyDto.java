@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.model.data;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Jacksonized
 public class UserDataModifyDto {
 
-    @NotNull
+    @Nullable
     private final UUID modifyingUserId;
 
     @Valid

@@ -33,8 +33,11 @@ public abstract class UserDataDto {
     @NotNull
     private final LocalDate date;
 
+    /**
+     * {@code null} означает, что владелец данных - юзер, который авторизован в данный момент
+     */
     @Nullable
-    private final UUID toUserId;
+    private final UUID owner;
 
     @Nullable
     private Instant deletedAt;

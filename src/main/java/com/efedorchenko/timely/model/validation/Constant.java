@@ -5,7 +5,10 @@ import com.efedorchenko.timely.entity.Fine;
 import com.efedorchenko.timely.entity.Space;
 import com.efedorchenko.timely.entity.UserDetailsImpl;
 import com.efedorchenko.timely.entity.UserEntity;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Constant {
 
     /**

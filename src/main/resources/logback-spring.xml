@@ -37,12 +37,12 @@
     </root>
 
     <!-- Логгеры для отладки SQL (требуются соответствующие свойства) -->
-    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
-        <appender-ref ref="CONSOLE" />
-    </logger>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="CONSOLE" />
-    </logger>
+<!--    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE" />-->
+<!--    </logger>-->
+<!--    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">-->
+<!--        <appender-ref ref="CONSOLE" />-->
+<!--    </logger>-->
 
     <!-- Логгеры для отладки кеширования -->
 <!--    <logger name="org.springframework.cache" level="TRACE" additivity="false">-->
