@@ -3,21 +3,24 @@ package com.efedorchenko.timely.controller;
 import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.model.data.DataRangeRequest;
+import com.efedorchenko.timely.model.Since;
 import com.efedorchenko.timely.model.data.UserDataDto;
 import com.efedorchenko.timely.model.data.UserDataModifyDto;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.service.UserDataService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.YearMonth;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,47 +34,53 @@ public class DataController {
 
     static final String DATA_ENDPOINT = ApplicationProperties.BASE_PATH + "/data";
 
-    private final UserDataService<UserDataDto, DataRangeRequest> userDataService;
+    private final UserDataService<UserDataDto> userDataService;
 
-    @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public UserDataDto addData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataDto userDataDto) {
-        return userDataDto.getToUserId() == null
-                ? userDataService.addData(userId, userDataDto)
-                : userDataService.addDataToOtherUser(userId, userDataDto);
+    @PostMapping(produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDataDto> addData(@AuthenticationPrincipal UUID userId,
+                                               @RequestBody @Valid UserDataDto userDataDto) {
+        UserDataDto responseDto = Optional.ofNullable(userDataDto.getOwner())
+                .map(toUserId -> userDataService.addDataToOtherUser(userId, userDataDto))
+                .orElseGet(() -> userDataService.addData(userId, userDataDto));
+        return ResponseEntity.ok(responseDto);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @DeleteMapping(path = "/{dataType}")
-    public void deleteData(@AuthenticationPrincipal UUID userId,
-                           @PathVariable UserDataType dataType,
-                           @RequestParam UUID targetUserId,
-                           @RequestParam Long dataId) {
-        userDataService.deleteData(userId, targetUserId, dataType, dataId);
+    @DeleteMapping(path = "/{type}")
+    public ResponseEntity<Void> deleteData(@AuthenticationPrincipal UUID userId,
+                                           @PathVariable UserDataType type,
+                                           @RequestParam UUID targetUserId,
+                                           @RequestParam Long dataId) {
+        userDataService.deleteData(userId, targetUserId, type, dataId);
+        return ResponseEntity.accepted().build();
     }
 
-    // TODO 08.01.2025 19:53: Принимать даты в параметрах, userId сделать nullable и если что брать из principal
-    @PostMapping(path = "/{dataType}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public Collection<UserDataDto> getRange(@RequestBody @Valid DataRangeRequest dataRangeRequest,
-                                            @PathVariable UserDataType dataType) {
-        return userDataService.getRange(dataRangeRequest, dataType);
+    @GetMapping(path = "{type}/range", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<UserDataDto>> getRange(@AuthenticationPrincipal UUID userId,
+                                                            @RequestParam(required = false) UUID requestedUserId,
+                                                            @RequestParam YearMonth start,
+                                                            @RequestParam YearMonth end,
+                                                            @PathVariable UserDataType type) {
+        UUID targetUserId = Optional.ofNullable(requestedUserId).orElse(userId);
+        return ResponseEntity.ok(userDataService.getRange(targetUserId, start, end, type));
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(path = "/{dataType}", produces = APPLICATION_JSON_VALUE)
-    public Collection<UserDataDto> getUpdates(
-            @AuthenticationPrincipal UUID userId,
-            @PathVariable UserDataType dataType,
-            @RequestParam(required = false) UUID targetUserId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam(required = false) Instant since) {
-        return targetUserId == null
-                ? userDataService.getUpdates(userId, dataType, since)
-                : userDataService.getUpdates(targetUserId, dataType, since);
+    @GetMapping(path = "/{type}/updates", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<UserDataDto>> getUpdates(@AuthenticationPrincipal UUID userId,
+                                                              @RequestParam(required = false) UUID targetUserId,
+                                                              @Since @RequestParam(required = false) Instant since,
+                                                              @PathVariable UserDataType type) {
+        List<UserDataDto> responseDto = Optional.ofNullable(targetUserId)
+                .map(t -> userDataService.getUpdates(t, type, since))
+                .orElseGet(() -> userDataService.getUpdates(userId, type, since));
+        return ResponseEntity.ok(responseDto);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PatchMapping(consumes = APPLICATION_JSON_VALUE)
-    public void editData(@AuthenticationPrincipal UUID userId, @RequestBody @Valid UserDataModifyDto newData) {
+    public ResponseEntity<Void> editData(@AuthenticationPrincipal UUID userId,
+                                         @RequestBody @Valid UserDataModifyDto newData) {
         userDataService.changeData(userId, newData);
+        return ResponseEntity.accepted().build();
     }
-    // TODO 05.01.2025 00:07: ResponseEntity?
 }

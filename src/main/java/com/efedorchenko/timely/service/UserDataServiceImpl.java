@@ -5,14 +5,13 @@ import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.mapper.UserDataMapper;
-import com.efedorchenko.timely.model.data.DataRangeRequest;
 import com.efedorchenko.timely.model.data.UserDataDto;
 import com.efedorchenko.timely.model.data.UserDataModifyDto;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.efedorchenko.timely.repository.UserDataRepository;
 import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
-import com.efedorchenko.timely.repository.UserDetailsRepository;
 import com.efedorchenko.timely.repository.UserEntityRepository;
+import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,19 +32,19 @@ import java.util.concurrent.ExecutorService;
 @Log
 @Service
 @RequiredArgsConstructor
-public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRangeRequest> {
+public class UserDataServiceImpl implements UserDataService<UserDataDto> {
 
     private final ExecutorService executorOfVirtual;
     private final UserDataMapper userDataMapper;
     private final UserEntityRepository userEntityRepository;
-    private final UserDetailsRepository userDetailsRepository;
+    private final UserDetailsServiceImpl userDetailsService;
     private final UserDataRepositoryFactory repositoryFactory;
 
     /**
      * Добавить объект {@link UserDataDto} какому-то юзеру, не тому кто авторизован в данный момент
      * <p>
      * Юзер, которому нужно добавить объект (вернее его {@code UUID userId}) берется из
-     * {@link UserDataDto#getToUserId()}. Перед тем как передать данные в метод добавления
+     * {@link UserDataDto#getOwner()}. Перед тем как передать данные в метод добавления
      * нового объекта к юзеру, выполняется проверка прав у инициатора - юзера, который
      * авторизован в данный момент и который пытается кому-то добавить новый объект данных.
      * <lu>
@@ -65,13 +65,11 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public UserDataDto addDataToOtherUser(UUID initiatorIdOfAdding, UserDataDto dataDto) {
-        UUID toUserId = dataDto.getToUserId();
+        UUID toUserId = dataDto.getOwner();
         if (toUserId == null) {
             throw ExceptionTemplates.BNS_VAR1.get();
         }
-        if (!this.haveAccessToSpaceOf(initiatorIdOfAdding, toUserId)) {
-            throw ExceptionTemplates.BNS_VAR5.apply(initiatorIdOfAdding, toUserId);
-        }
+        userDetailsService.checkAccessToSpaceOf(initiatorIdOfAdding, toUserId);
         return this.addData(toUserId, dataDto);
     }
 
@@ -97,9 +95,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
     @Transactional
     @PreAuthorize("hasAnyAuthority('BOSS', 'CREATOR', 'MODERATOR')")
     public void deleteData(UUID userId, UUID targetUserId, UserDataType dataType, Long dataId) {
-        if (!this.haveAccessToSpaceOf(userId, targetUserId)) {
-            throw ExceptionTemplates.BNS_VAR5.apply(userId, targetUserId);
-        }
+        userDetailsService.checkAccessToSpaceOf(userId, targetUserId);
 
         CompletableFuture.runAsync(() -> {
             UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
@@ -119,13 +115,9 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserDataDto> getRange(DataRangeRequest dataRangeRequest, UserDataType dataType) {
-        int startMonthUid = Helper.getMonthUid(dataRangeRequest.getStartInclusive());
-        int endMonthUid = Helper.getMonthUid(dataRangeRequest.getEndInclusive());
-        UUID userId = dataRangeRequest.getRequestedUserId();
-
-        UserDataRepository<UserDataEntity> repository = repositoryFactory.getRepository(dataType);
-        List<UserDataEntity> entities = repository.findByUserIdAndMonthUidBetween(userId, startMonthUid, endMonthUid);
+    public List<UserDataDto> getRange(UUID userId, YearMonth start, YearMonth end, UserDataType dataType) {
+        List<UserDataEntity> entities = repositoryFactory.getRepository(dataType)
+                .findByUserIdAndMonthUidBetween(userId, Helper.getMonthUid(start), Helper.getMonthUid(end));
         return userDataMapper.map(entities);
     }
 
@@ -153,29 +145,14 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto, DataRan
         UserDataEntity dataEntity = repository.findById(dataId)
                 .orElseThrow(() -> ExceptionTemplates.BNS_VAR8.apply(modifyingData));
 
-        if (!modifyingData.getModifyingUserId().equals(dataEntity.getUser().getId())) {
-            throw ExceptionTemplates.BNS_VAR9.apply(dataEntity, modifyingData.getModifyingUserId());
+        UUID modifyingUserId = modifyingData.getModifyingUserId() != null ? modifyingData.getModifyingUserId() : userId;
+        if (!modifyingUserId.equals(dataEntity.getUser().getId())) {
+            throw ExceptionTemplates.BNS_VAR9.apply(dataEntity, modifyingUserId);
         }
 
         CompletableFuture.runAsync(() -> {
             UserDataEntity updatedDataEntity = userDataMapper.update(dataEntity, newData);
             repository.save(updatedDataEntity);
         }, executorOfVirtual);
-    }
-
-    private boolean haveAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {
-        RoleType initiatorRole = userDetailsRepository.findRoleById(initiatorId)
-                .orElseThrow(() -> ExceptionTemplates.SVR_VAR2.apply(initiatorId))
-                .getRoleType();
-
-        if (initiatorRole == RoleType.MODERATOR) {
-            return true;
-        }
-        Long initiatorSpaceId = userEntityRepository.findSpaceIdWhereConsist(initiatorId)
-                .orElseThrow(() -> ExceptionTemplates.SVR_VAR3.apply(initiatorId));
-        Long addableUserSpaceId = userEntityRepository.findSpaceIdWhereConsist(userIdToCompareSpace)
-                .orElseThrow(() -> ExceptionTemplates.BNS_VAR4.apply(userIdToCompareSpace, initiatorId));
-
-        return initiatorSpaceId.equals(addableUserSpaceId);
     }
 }

@@ -6,6 +6,7 @@ import com.efedorchenko.timely.exception.ExceptionTemplates;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.repository.RoleRepository;
 import com.efedorchenko.timely.repository.UserDetailsRepository;
+import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,6 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final RoleRepository roleRepository;
     private final UserDetailsRepository userDetailsRepository;
+    private final UserEntityRepository userEntityRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,5 +47,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         userDetails.setRole(role);
         userDetailsRepository.save(userDetails);
+    }
+
+    @Transactional(readOnly = true)
+    public void checkAccessToSpaceOf(UUID initiatorId, UUID userIdToCompareSpace) {
+        RoleType initiatorRole = userDetailsRepository.findRoleById(initiatorId)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR2.apply(initiatorId))
+                .getRoleType();
+
+        if (initiatorRole == RoleType.MODERATOR) {
+            return;
+        }
+        Long initiatorSpaceId = userEntityRepository.findSpaceIdWhereConsist(initiatorId)
+                .orElseThrow(() -> ExceptionTemplates.SVR_VAR3.apply(initiatorId));
+        Long addableUserSpaceId = userEntityRepository.findSpaceIdWhereConsist(userIdToCompareSpace)
+                .orElseThrow(() -> ExceptionTemplates.BNS_VAR4.apply(userIdToCompareSpace, initiatorId));
+
+        if (!initiatorSpaceId.equals(addableUserSpaceId)) {
+            throw ExceptionTemplates.BNS_VAR5.apply(initiatorId, userIdToCompareSpace);
+        }
     }
 }
