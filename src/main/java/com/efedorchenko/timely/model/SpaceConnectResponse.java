@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.model;
 
-import com.efedorchenko.timely.security.model.RoleType;
+import com.efedorchenko.timely.entity.SpaceStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
@@ -14,19 +14,16 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceConnectResponse {
 
-    private final boolean success;
+    private final SpaceConnectResultType result;
 
     @Nullable
-    private final RoleType newRole;
+    private final SpaceStatus newSpaceStatus;
 
-    @Nullable
-    private final SpaceDto space;
-
-    public static SpaceConnectResponse fail() {
-        return new SpaceConnectResponse(false, null, null);
+    public static SpaceConnectResponse keyInvalid() {
+        return new SpaceConnectResponse(SpaceConnectResultType.KEY_INVALID, null);
     }
 
-    public static SpaceConnectResponse success(RoleType newRole, SpaceDto space) {
-        return new SpaceConnectResponse(true, newRole, space);
+    public static SpaceConnectResponse success(SpaceStatus newSpaceStatus) {
+        return new SpaceConnectResponse(SpaceConnectResultType.SUCCESS,  newSpaceStatus);
     }
 }

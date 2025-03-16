@@ -1,8 +1,10 @@
 package com.efedorchenko.timely.model;
 
+import com.efedorchenko.timely.entity.SpaceStatus;
 import com.efedorchenko.timely.security.model.RoleType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceMember {
 
@@ -26,6 +29,8 @@ public class SpaceMember {
 
     @Nullable
     private final Integer rate;
+
+    private final SpaceStatus spaceStatus;
 
     private final Instant changedAt;
 }
