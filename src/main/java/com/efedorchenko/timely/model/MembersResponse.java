@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.model;
 
 import com.efedorchenko.timely.entity.SpaceStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Getter
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MembersResponse {
 
     private final SpaceStatus spaceStatus;

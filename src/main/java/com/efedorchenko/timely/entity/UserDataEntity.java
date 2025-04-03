@@ -61,7 +61,7 @@ public abstract sealed class UserDataEntity permits Event, Fine {
 
     @Override
     public String toString() {
-        return "UserDataEntity{id=%d, userId=%s, date:=%s, deletedAt=%s, changedAt=%s}"
+        return "UserDataEntity{id=%d, userId=%s, date=%s, deletedAt=%s, changedAt=%s}"
                 .formatted(
                         id,
                         user.getId().toString(),
@@ -69,5 +69,9 @@ public abstract sealed class UserDataEntity permits Event, Fine {
                         deletedAt == null ? "null" : STR_UTC_FORMATTER.format(deletedAt),
                         STR_UTC_FORMATTER.format(changedAt)
                 );
+    }
+
+    public void markDeleted() {
+        this.deletedAt = Instant.now();
     }
 }

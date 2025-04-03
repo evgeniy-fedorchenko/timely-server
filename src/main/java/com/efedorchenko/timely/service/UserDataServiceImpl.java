@@ -103,7 +103,7 @@ public class UserDataServiceImpl implements UserDataService<UserDataDto> {
                 if (!userId.equals(data.getUser().getId())) {
                     throw ExceptionTemplates.BNS_VAR6.apply(dataId, userId);
                 }
-                data.setDeletedAt(Instant.now());
+                data.markDeleted();
                 repository.save(data);
 
 //                Без исключений, потому что данные, которые нужно удалить, итак не существуют
