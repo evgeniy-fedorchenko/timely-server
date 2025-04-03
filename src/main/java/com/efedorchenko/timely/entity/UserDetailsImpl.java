@@ -57,4 +57,10 @@ public class UserDetailsImpl implements UserDetails {
     public boolean hasRole(RoleType roleType) {
         return this.role.getRoleType().equals(roleType);
     }
+
+    @Override
+    public String toString() {
+        return "UserDetailsImpl{id=%s, username='%s', role=%s}"
+                .formatted(id.toString(), username, role.getRoleType());
+    }
 }

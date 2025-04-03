@@ -17,6 +17,7 @@ import com.efedorchenko.timely.repository.UserEntityRepository;
 import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+@Slf4j
 @Log
 @Service
 @AllArgsConstructor
@@ -57,7 +59,8 @@ public class SpaceServiceImpl implements SpaceService {
         CompletableFuture.runAsync(() -> {
             UserEntity creator = userEntityRepository.findById(userId).orElseThrow();
             Space space = spaceMapper.map(spaceDto, spaceKeys, creator);
-            spaceRepository.save(space);
+            Space savedSpace = spaceRepository.save(space);
+            log.debug("Space created: [{}]", savedSpace);
 
 //            Создатель пространства состоит в своем же пространстве
             creator.setCreatedSpace(space);

@@ -16,6 +16,7 @@ import com.efedorchenko.timely.security.model.AuthData;
 import com.efedorchenko.timely.security.model.JwtTokenData;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
+@Slf4j
 @Log
 @Service
 @AllArgsConstructor
@@ -89,8 +91,9 @@ public class AuthServiceImpl implements AuthService<RegisterRequest, AuthRespons
 
         CompletableFuture.runAsync(() -> {
             UserEntity userEntity = userMapper.toUserEntity(primaryKey, request, findedSpace);
-            userEntityRepository.save(userEntity);
-            userDetailsRepository.save(userDetails);
+            UserEntity savedEntity = userEntityRepository.save(userEntity);
+            UserDetailsImpl savedDetails = userDetailsRepository.save(userDetails);
+            log.debug("User created: entity: [{}], details: [{}]", savedEntity, savedDetails);
             if (needCreateSpace) {
                 spaceService.create(primaryKey, request.getCreatingSpace(), detachedKeys);
             }

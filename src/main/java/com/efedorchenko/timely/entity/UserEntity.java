@@ -1,4 +1,5 @@
 package com.efedorchenko.timely.entity;
+
 import com.efedorchenko.timely.configuration.ApplicationProperties;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.security.model.RoleType;
@@ -120,14 +121,16 @@ public class UserEntity {
     @Override
     public String toString() {
         return "UserEntity{id=%s, name='%s', position='%s', rate='%d', createdSpace=%s, consistsInSpace=%s, eventCont=%d, finesCont=%d}"
-                .formatted(id.toString(),
+                .formatted(
+                        id.toString(),
                         name,
                         position,
                         rate,
-                        createdSpace == null ? null : createdSpace.toString(),
-                        consistsInSpace == null ? null : consistsInSpace.toString(),
+                        createdSpace == null ? null : createdSpace.getId(),
+                        consistsInSpace == null ? null : consistsInSpace.getId(),
                         events == null || events.isEmpty() ? 0 : events.size(),
-                        fines == null || fines.isEmpty() ? 0 : fines.size());
+                        fines == null || fines.isEmpty() ? 0 : fines.size()
+                );
     }
 
     private <E extends UserDataEntity> List<E> getNotNullList(@Nullable List<E> dataList) {
