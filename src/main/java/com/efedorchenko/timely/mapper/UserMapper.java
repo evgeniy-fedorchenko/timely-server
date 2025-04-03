@@ -48,10 +48,11 @@ public class UserMapper {
         user.setName(registerRequest.getName());
         user.setPosition(registerRequest.getPosition());
         user.setRate(registerRequest.getRate());
-        Optional.ofNullable(space).ifPresent(s -> {
-            user.setConsistsInSpace(s);
-            user.setSpaceStatus(registerRequest.getRole().getPreAcceptSpaceStatus());
-        });
+        Optional.ofNullable(space).ifPresentOrElse(s -> {
+                    user.setConsistsInSpace(s);
+                    user.setSpaceStatus(registerRequest.getRole().getPreAcceptSpaceStatus());
+                }, () -> user.setSpaceStatus(SpaceStatus.NONE)
+        );
 
         return user;
     }
