@@ -19,11 +19,14 @@ public class SpaceConnectResponse {
     @Nullable
     private final SpaceStatus newSpaceStatus;
 
+    @Nullable
+    private final SpaceDto spaceDto;
+
     public static SpaceConnectResponse keyInvalid() {
-        return new SpaceConnectResponse(SpaceConnectResultType.KEY_INVALID, null);
+        return new SpaceConnectResponse(SpaceConnectResultType.KEY_INVALID, null, null);
     }
 
-    public static SpaceConnectResponse success(SpaceStatus newSpaceStatus) {
-        return new SpaceConnectResponse(SpaceConnectResultType.SUCCESS,  newSpaceStatus);
+    public static SpaceConnectResponse success(SpaceStatus newSpaceStatus, SpaceDto spaceDto) {
+        return new SpaceConnectResponse(SpaceConnectResultType.SUCCESS,  newSpaceStatus, spaceDto);
     }
 }

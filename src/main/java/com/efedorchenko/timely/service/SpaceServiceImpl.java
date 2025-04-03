@@ -44,8 +44,8 @@ public class SpaceServiceImpl implements SpaceService {
 
     private final ExecutorService executorOfVirtual;
     private final SpaceMapper spaceMapper;
-    private final UserDetailsServiceImpl userDetailsService;
     private final SpaceRepository spaceRepository;
+    private final UserDetailsServiceImpl userDetailsService;
     private final UserEntityRepository userEntityRepository;
 
     private final Function<String, String> keyGenerator = prefix ->
@@ -102,12 +102,12 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     @Transactional(readOnly = true)
     public MembersResponse getMembers(UUID userId, @Nullable Instant since, boolean withJoinRequests) {
-        Optional<Space> spaceIdOpt = userEntityRepository.findSpaceWhereConsist(userId);
-        if (spaceIdOpt.isEmpty()) {
-            SpaceStatus spaceStatus = userEntityRepository.findSpaceStatusByUserId(userId).orElse(SpaceStatus.NONE);
-            return MembersResponse.emptyWith(spaceStatus);
+        Optional<Space> spaceOpt = userEntityRepository.findSpaceWhereConsist(userId);
+        SpaceStatus currentStatus = userEntityRepository.findSpaceStatus(userId).orElse(SpaceStatus.NONE);  // TODO 29.03.2025 20:45: повесить кеш, чистить его при явной смене статуса
+        if (spaceOpt.isEmpty() || currentStatus != SpaceStatus.MEMBER) {
+            return MembersResponse.emptyWith(currentStatus);
         }
-        Space space = spaceIdOpt.get();
+        Space space = spaceOpt.get();
         CompletableFuture<List<UUID>> actualIds = CompletableFuture.supplyAsync(
                 () -> userEntityRepository.findIdsIdByConsistsInSpace(space.getId()),
                 executorOfVirtual
@@ -180,7 +180,7 @@ public class SpaceServiceImpl implements SpaceService {
         UUID acceptedUserId = acceptMember.getAcceptedUserId();
         userDetailsService.checkAccessToSpaceOf(userId, acceptedUserId);
 
-        return switch (userEntityRepository.findSpaceStatusByUserId(acceptedUserId).orElseThrow()) {
+        return switch (userEntityRepository.findSpaceStatus(acceptedUserId).orElseThrow()) {
             case PENDING_WORKER, PENDING_BOSS -> {
                 userEntityRepository.setStatus(acceptedUserId, SpaceStatus.MEMBER.name());
                 userDetailsService.addRole(acceptMember.getNewRole(), acceptedUserId);
@@ -212,10 +212,10 @@ public class SpaceServiceImpl implements SpaceService {
             UserEntity userEntity = userEntityRepository.findById(userId).orElseThrow();
             userEntity.setConsistsInSpace(space);
             userEntity.setSpaceStatus(spaceStatus);
-            userDetailsService.addRole(newRole, userId);
+            userDetailsService.addRole(newRole.doPreAccept(), userId);
             userEntityRepository.save(userEntity);
         }, executorOfVirtual);
 
-        return SpaceConnectResponse.success(spaceStatus);
+        return SpaceConnectResponse.success(spaceStatus, spaceMapper.map(space));
     }
 }

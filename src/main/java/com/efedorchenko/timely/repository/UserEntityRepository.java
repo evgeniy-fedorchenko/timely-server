@@ -6,6 +6,7 @@ import com.efedorchenko.timely.entity.UserEntity;
 import com.efedorchenko.timely.model.SpaceMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
@@ -43,13 +44,13 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, UUID> {
     List<SpaceMember> findMembers(Long spaceId, Instant changedAt, Collection<SpaceStatus> statuses);
 
     @Query("SELECT u.spaceStatus FROM UserEntity u WHERE u.id = :userId")
-    Optional<SpaceStatus> findSpaceStatusByUserId(UUID userId);
+    Optional<SpaceStatus> findSpaceStatus(UUID userId);
 
     @Modifying
-    @Query(value = """
+    @NativeQuery(value = """
             UPDATE users.users
             SET space_status = CAST(:newStatus AS users.space_consist_status)
             WHERE id = :userId
-            """, nativeQuery = true)
+            """)
     void setStatus(UUID userId, String newStatus);
 }
