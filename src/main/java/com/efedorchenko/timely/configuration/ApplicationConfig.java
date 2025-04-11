@@ -1,6 +1,7 @@
 package com.efedorchenko.timely.configuration;
 
  import com.efedorchenko.timely.configuration.properties.JwtProperties;
+import com.efedorchenko.timely.configuration.properties.RateLimiterProperties;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 @EnableCaching
 @EnableScheduling
 @Configuration
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({ JwtProperties.class, RateLimiterProperties.class })
 public class ApplicationConfig {
 
     /*

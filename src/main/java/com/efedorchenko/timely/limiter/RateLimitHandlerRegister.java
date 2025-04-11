@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 @Component
+@RateLimiterEnabledOnCondition
 public class RateLimitHandlerRegister extends UndertowServletWebServerFactory {
 
     private final RateLimitHandler rtHandler;
