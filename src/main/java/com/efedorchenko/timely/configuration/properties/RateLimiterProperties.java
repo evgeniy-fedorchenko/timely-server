@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.configuration.properties;
 
-import com.efedorchenko.timely.limiter.LimitType;
+import com.efedorchenko.timely.limiter.atomic.LimitType;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;

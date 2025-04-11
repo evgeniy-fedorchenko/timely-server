@@ -2,10 +2,7 @@ package com.efedorchenko.timely.limiter;
 
 import io.undertow.server.HttpServerExchange;
 
+public interface RateLimiter {
 
-public class RateLimiter {
-
-    public boolean isRateCheckPassed(HttpServerExchange exchange) {
-        return true;
-    }
+    boolean isRateCheckPassed(HttpServerExchange exchange);
 }
