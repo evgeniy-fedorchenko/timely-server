@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.configuration;
+package com.efedorchenko.timely.configuration.properties;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

@@ -33,7 +33,7 @@ public class EventDto extends UserDataDto {
 
     @Nullable
     private final EventStatus status;
-
+// TODO 10.04.2025 00:27: owner
     @Override
     public UserDataType getType() {
         return UserDataType.EVENT;

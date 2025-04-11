@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.efedorchenko.timely.configuration.ApplicationProperties.ROLES_BY_USER_ID_CACHE_NAME;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.ROLES_BY_USER_ID_CACHE_NAME;
 
 @Log
 @Service

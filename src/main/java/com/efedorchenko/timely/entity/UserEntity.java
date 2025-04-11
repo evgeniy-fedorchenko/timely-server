@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.entity;
 
-import com.efedorchenko.timely.configuration.ApplicationProperties;
+import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
 import com.efedorchenko.timely.model.validation.Constant;
 import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.annotation.Nullable;

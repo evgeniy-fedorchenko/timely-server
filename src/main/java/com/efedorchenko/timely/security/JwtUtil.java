@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.security;
 
-import com.efedorchenko.timely.configuration.JwtProperties;
+import com.efedorchenko.timely.configuration.properties.JwtProperties;
 import com.efedorchenko.timely.security.model.JwtTokenData;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,9 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-@RequiredArgsConstructor
 @Component
-@EnableConfigurationProperties(JwtProperties.class)
+@RequiredArgsConstructor
 public class JwtUtil {
 
     private static final String EMAIL_KEY = "email";

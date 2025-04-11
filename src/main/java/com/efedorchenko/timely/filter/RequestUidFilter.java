@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.filter;
 
-import com.efedorchenko.timely.configuration.ApplicationProperties;
+import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.efedorchenko.timely.configuration.ApplicationProperties.RQUID;
-import static com.efedorchenko.timely.configuration.ApplicationProperties.RQUID_PATTERN;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.RQUID;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.RQUID_PATTERN;
 
 @Slf4j
 @Component

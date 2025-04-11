@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.configuration;
 
+ import com.efedorchenko.timely.configuration.properties.JwtProperties;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.slf4j.MDC;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +29,13 @@ import java.util.function.Function;
 @EnableCaching
 @EnableScheduling
 @Configuration
+@EnableConfigurationProperties(JwtProperties.class)
 public class ApplicationConfig {
 
     /*
-    * Стандартный экзекутор Spring (виртуальный): vbase-...
-    * Пользовательский виртуальный экзекутор: vtly-999
-    */
+     * Стандартный экзекутор Spring (виртуальный): vbase-...
+     * Пользовательский виртуальный экзекутор: vtly-999
+     */
     private static final String VIRTUAL_THREAD_PREFIX = "vtly-";   // virtual-timely-thread
 
     @Bean

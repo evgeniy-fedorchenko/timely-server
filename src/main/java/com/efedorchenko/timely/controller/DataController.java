@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.controller;
 
-import com.efedorchenko.timely.configuration.ApplicationProperties;
+import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
 import com.efedorchenko.timely.logging.Level;
 import com.efedorchenko.timely.logging.Log;
 import com.efedorchenko.timely.model.Since;

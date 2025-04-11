@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.efedorchenko.timely.configuration.ApplicationProperties.ROLES_BY_USER_ID_CACHE_NAME;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.ROLES_BY_USER_ID_CACHE_NAME;
 
 public interface UserDetailsRepository extends JpaRepository<UserDetailsImpl, UUID> {
 

@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.configuration;
 
+import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.efedorchenko.timely.configuration;
+package com.efedorchenko.timely.configuration.properties;
 
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;

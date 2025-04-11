@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-import static com.efedorchenko.timely.configuration.ApplicationProperties.ROLES_CACHE_NAME;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.ROLES_CACHE_NAME;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
 

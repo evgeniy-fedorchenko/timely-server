@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.configuration;
 
+import com.efedorchenko.timely.configuration.properties.JwtProperties;
 import com.efedorchenko.timely.security.JwtAuthenticationFilter;
 import com.efedorchenko.timely.security.JwtUtil;
 import com.efedorchenko.timely.security.LoginAuthenticationConverter;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import static com.efedorchenko.timely.configuration.ApplicationProperties.BASE_PATH;
+import static com.efedorchenko.timely.configuration.properties.ApplicationProperties.BASE_PATH;
 
 @Configuration
 @EnableWebSecurity

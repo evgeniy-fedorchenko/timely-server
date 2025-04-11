@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.entity;
 
-import com.efedorchenko.timely.configuration.ApplicationProperties;
+import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
 import com.efedorchenko.timely.model.data.UserDataType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
