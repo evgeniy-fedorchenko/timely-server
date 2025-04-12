@@ -11,7 +11,7 @@ public interface TokenBucket {
     /**
      * Возвращает текущее количество доступных токенов
      */
-    double getAvailableTokens();
+    int getAvailableTokens();
 
     /**
      * Возвращает максимальную емкость бакета

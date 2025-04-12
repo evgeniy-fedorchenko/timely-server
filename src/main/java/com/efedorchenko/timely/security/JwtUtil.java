@@ -6,11 +6,15 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderValues;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -30,8 +35,22 @@ public class JwtUtil {
 
     private static final String EMAIL_KEY = "email";
     private static final String ROLES_KEY = "roles";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtProperties properties;
+
+    public static Optional<String> extractJwt(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
+                .filter(authHeader -> authHeader.startsWith(BEARER_PREFIX))
+                .map(rawAuthorizationHeaderValue -> rawAuthorizationHeaderValue.substring(BEARER_PREFIX.length()));
+    }
+
+    public static Optional<String> extractJwt(HttpServerExchange exchange) {
+        return Optional.ofNullable(exchange.getRequestHeaders().get(HttpHeaders.AUTHORIZATION))
+                .map(HeaderValues::getFirst)
+                .filter(authHeader -> authHeader.startsWith(BEARER_PREFIX))
+                .map(rawAuthorizationHeaderValue -> rawAuthorizationHeaderValue.substring(BEARER_PREFIX.length()));
+    }
 
     public String generateToken(JwtTokenData tokenData) {
         Date now = new Date();

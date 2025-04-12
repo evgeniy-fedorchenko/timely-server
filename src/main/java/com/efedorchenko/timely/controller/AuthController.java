@@ -33,7 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = AuthController.AUTH_ENDPOINT, produces = APPLICATION_JSON_VALUE)
 public class AuthController {
 
-    static final String AUTH_ENDPOINT = ApplicationProperties.BASE_PATH + "/auth";
+    public static final String AUTH_ENDPOINT = ApplicationProperties.BASE_PATH + "/auth";
 
     private final AuthService<RegisterRequest, AuthResponse> authService;
 
