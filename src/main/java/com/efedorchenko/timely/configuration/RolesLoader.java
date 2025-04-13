@@ -20,12 +20,13 @@ public class RolesLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        Arrays.stream(RoleType.values())
-                .forEach(roleType -> {
-                    if (!roleRepository.existsByRoleType(roleType)) {
-                        Role role = Role.fromRoleType(roleType);
-                        roleRepository.save(role);
-                    }
-                });
+        Arrays.stream(RoleType.values()).forEach(this::saveIfNotFound);
+    }
+
+    private void saveIfNotFound(RoleType roleType) {
+        if (!roleRepository.existsByRoleType(roleType)) {
+            Role role = Role.fromRoleType(roleType);
+            roleRepository.save(role);
+        }
     }
 }

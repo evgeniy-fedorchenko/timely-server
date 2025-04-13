@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutorService;
 public class UserDataServiceImpl implements UserDataService<UserDataDto> {
 
     private final ExecutorService executorOfVirtual;
-    private final UserDataMapper userDataMapper;
+    private final UserDataMapper<UserDataEntity, UserDataDto> userDataMapper;
     private final UserEntityRepository userEntityRepository;
     private final UserDetailsServiceImpl userDetailsService;
     private final UserDataRepositoryFactory repositoryFactory;

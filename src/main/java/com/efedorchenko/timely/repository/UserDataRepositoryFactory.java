@@ -33,7 +33,7 @@ public class UserDataRepositoryFactory {
     @SuppressWarnings("unchecked")
     public <E extends UserDataEntity> UserDataRepository<E> getRepository(UserDataType userDataType) {
         try {
-            return ((UserDataRepository<E>) repositoryMap.get(userDataType));
+            return (UserDataRepository<E>) repositoryMap.get(userDataType);
         } catch (ClassCastException cce) {
             throw ExceptionTemplates.SVR_VAR11.apply(userDataType, repositoryMap, cce);
         }

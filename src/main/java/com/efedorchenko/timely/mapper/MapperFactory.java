@@ -23,7 +23,7 @@ public class MapperFactory {
     @SuppressWarnings("unchecked")
     public <E extends UserDataEntity, D extends UserDataDto> AbstractMapper<E, D> getMapper(UserDataType userDataType) {
         try {
-            return ((AbstractMapper<E, D>) mapperMap.get(userDataType));
+            return (AbstractMapper<E, D>) mapperMap.get(userDataType);
         } catch (ClassCastException cce) {
             throw ExceptionTemplates.SVR_VAR12.apply(userDataType, mapperMap, cce);
         }

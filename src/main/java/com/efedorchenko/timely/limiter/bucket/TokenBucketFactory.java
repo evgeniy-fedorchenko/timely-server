@@ -27,7 +27,8 @@ public class TokenBucketFactory implements RateLimitingStrategyFactory<LimitType
     }
 
     /**
-     * Рассчитывает емкость бакета на основе интервала пополнения
+     * Рассчитывает изначальную емкость бакета, как количество
+     * токенов, генерируемых в минуту, но минимум 1 токен
      */
     private int getInitCapacity(long refillIntervalMs) {
         return (int) Math.max(1, 60000 / refillIntervalMs);
