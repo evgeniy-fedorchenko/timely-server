@@ -1,12 +1,12 @@
 package com.efedorchenko.timely.security;
 
-import com.efedorchenko.timely.entity.Role;
-import com.efedorchenko.timely.entity.UserDetailsImpl;
+import com.efedorchenko.timely.data.entity.Role;
+import com.efedorchenko.timely.data.entity.UserDetailsImpl;
+import com.efedorchenko.timely.data.repository.RoleRepository;
+import com.efedorchenko.timely.data.repository.UserDetailsRepository;
+import com.efedorchenko.timely.data.repository.UserEntityRepository;
 import com.efedorchenko.timely.exception.ExceptionTemplates;
-import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.repository.RoleRepository;
-import com.efedorchenko.timely.repository.UserDetailsRepository;
-import com.efedorchenko.timely.repository.UserEntityRepository;
+import com.efedorchenko.timely.middleware.logging.Log;
 import com.efedorchenko.timely.security.model.RoleType;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;

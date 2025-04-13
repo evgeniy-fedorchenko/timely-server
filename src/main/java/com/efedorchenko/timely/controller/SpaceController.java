@@ -1,13 +1,13 @@
 package com.efedorchenko.timely.controller;
 
 import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
-import com.efedorchenko.timely.logging.Level;
-import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.model.AcceptMember;
-import com.efedorchenko.timely.model.MemberOpResult;
-import com.efedorchenko.timely.model.MembersResponse;
-import com.efedorchenko.timely.model.Since;
-import com.efedorchenko.timely.model.SpaceConnectResponse;
+import com.efedorchenko.timely.data.model.AcceptMember;
+import com.efedorchenko.timely.data.model.MemberOpResult;
+import com.efedorchenko.timely.data.model.MembersResponse;
+import com.efedorchenko.timely.data.model.Since;
+import com.efedorchenko.timely.data.model.SpaceConnectResponse;
+import com.efedorchenko.timely.middleware.logging.Level;
+import com.efedorchenko.timely.middleware.logging.Log;
 import com.efedorchenko.timely.service.SpaceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

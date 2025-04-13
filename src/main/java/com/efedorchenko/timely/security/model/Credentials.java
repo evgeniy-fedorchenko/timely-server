@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.security.model;
 
-import com.efedorchenko.timely.model.validation.Constant;
-import com.efedorchenko.timely.model.validation.Email;
+import com.efedorchenko.timely.data.validation.Constant;
+import com.efedorchenko.timely.data.validation.Email;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

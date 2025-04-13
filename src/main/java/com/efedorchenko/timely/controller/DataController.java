@@ -1,12 +1,12 @@
 package com.efedorchenko.timely.controller;
 
 import com.efedorchenko.timely.configuration.properties.ApplicationProperties;
-import com.efedorchenko.timely.logging.Level;
-import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.model.Since;
-import com.efedorchenko.timely.model.data.UserDataDto;
-import com.efedorchenko.timely.model.data.UserDataModifyDto;
-import com.efedorchenko.timely.model.data.UserDataType;
+import com.efedorchenko.timely.data.model.Since;
+import com.efedorchenko.timely.data.model.UserDataDto;
+import com.efedorchenko.timely.data.model.UserDataModifyDto;
+import com.efedorchenko.timely.data.model.UserDataType;
+import com.efedorchenko.timely.middleware.logging.Level;
+import com.efedorchenko.timely.middleware.logging.Log;
 import com.efedorchenko.timely.service.UserDataService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

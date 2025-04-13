@@ -2,7 +2,7 @@ package com.efedorchenko.timely.configuration;
 
 import com.efedorchenko.timely.configuration.properties.JwtProperties;
 import com.efedorchenko.timely.configuration.properties.RateLimiterProperties;
-import com.efedorchenko.timely.model.data.UserDataType;
+import com.efedorchenko.timely.data.model.UserDataType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

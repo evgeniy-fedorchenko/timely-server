@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.security.model;
 
-import com.efedorchenko.timely.model.SpaceKeys;
+import com.efedorchenko.timely.data.model.SpaceKeys;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;

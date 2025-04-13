@@ -1,12 +1,12 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.Space;
-import com.efedorchenko.timely.model.AcceptMember;
-import com.efedorchenko.timely.model.MemberOpResult;
-import com.efedorchenko.timely.model.MembersResponse;
-import com.efedorchenko.timely.model.SpaceConnectResponse;
-import com.efedorchenko.timely.model.SpaceDto;
-import com.efedorchenko.timely.model.SpaceKeys;
+import com.efedorchenko.timely.data.entity.Space;
+import com.efedorchenko.timely.data.model.AcceptMember;
+import com.efedorchenko.timely.data.model.MemberOpResult;
+import com.efedorchenko.timely.data.model.MembersResponse;
+import com.efedorchenko.timely.data.model.SpaceConnectResponse;
+import com.efedorchenko.timely.data.model.SpaceDto;
+import com.efedorchenko.timely.data.model.SpaceKeys;
 import com.efedorchenko.timely.security.model.RoleType;
 
 import java.time.Instant;

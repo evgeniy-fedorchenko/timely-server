@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.configuration.properties;
 
-import com.efedorchenko.timely.limiter.bucket.LimitType;
+import com.efedorchenko.timely.middleware.limiter.bucket.LimitType;
 import jakarta.annotation.PostConstruct;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;

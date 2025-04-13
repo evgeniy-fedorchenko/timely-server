@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.security.model;
 
-import com.efedorchenko.timely.entity.UserDetailsImpl;
+import com.efedorchenko.timely.data.entity.UserDetailsImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,6 @@
 package com.efedorchenko.timely.security;
 
+import com.efedorchenko.timely.security.model.AuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

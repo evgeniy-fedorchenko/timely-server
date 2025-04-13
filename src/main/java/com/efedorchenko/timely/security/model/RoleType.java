@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.security.model;
 
-import com.efedorchenko.timely.entity.SpaceStatus;
+import com.efedorchenko.timely.data.entity.SpaceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

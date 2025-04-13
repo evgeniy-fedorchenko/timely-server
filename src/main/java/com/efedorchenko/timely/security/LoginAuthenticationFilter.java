@@ -1,7 +1,8 @@
 package com.efedorchenko.timely.security;
 
-import com.efedorchenko.timely.entity.UserDetailsImpl;
+import com.efedorchenko.timely.data.entity.UserDetailsImpl;
 import com.efedorchenko.timely.exception.BusinessException;
+import com.efedorchenko.timely.security.model.AuthenticationToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

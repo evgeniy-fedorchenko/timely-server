@@ -1,16 +1,16 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.UserDataEntity;
-import com.efedorchenko.timely.entity.UserEntity;
+import com.efedorchenko.timely.data.entity.UserDataEntity;
+import com.efedorchenko.timely.data.entity.UserEntity;
+import com.efedorchenko.timely.data.mapper.UserDataMapper;
+import com.efedorchenko.timely.data.model.UserDataDto;
+import com.efedorchenko.timely.data.model.UserDataModifyDto;
+import com.efedorchenko.timely.data.model.UserDataType;
+import com.efedorchenko.timely.data.repository.UserDataRepository;
+import com.efedorchenko.timely.data.repository.UserDataRepositoryFactory;
+import com.efedorchenko.timely.data.repository.UserEntityRepository;
 import com.efedorchenko.timely.exception.ExceptionTemplates;
-import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.mapper.UserDataMapper;
-import com.efedorchenko.timely.model.data.UserDataDto;
-import com.efedorchenko.timely.model.data.UserDataModifyDto;
-import com.efedorchenko.timely.model.data.UserDataType;
-import com.efedorchenko.timely.repository.UserDataRepository;
-import com.efedorchenko.timely.repository.UserDataRepositoryFactory;
-import com.efedorchenko.timely.repository.UserEntityRepository;
+import com.efedorchenko.timely.middleware.logging.Log;
 import com.efedorchenko.timely.security.UserDetailsServiceImpl;
 import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.annotation.Nullable;

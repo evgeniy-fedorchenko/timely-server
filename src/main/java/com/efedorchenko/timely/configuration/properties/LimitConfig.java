@@ -1,6 +1,6 @@
 package com.efedorchenko.timely.configuration.properties;
 
-import com.efedorchenko.timely.limiter.bucket.TokenBucket;
+import com.efedorchenko.timely.middleware.limiter.bucket.TokenBucket;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

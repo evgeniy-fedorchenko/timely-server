@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.model.data.UserDataModifyDto;
-import com.efedorchenko.timely.model.data.UserDataType;
+import com.efedorchenko.timely.data.model.UserDataModifyDto;
+import com.efedorchenko.timely.data.model.UserDataType;
 
 import java.time.Instant;
 import java.time.YearMonth;

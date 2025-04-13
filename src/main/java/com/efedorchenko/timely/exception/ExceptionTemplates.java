@@ -1,10 +1,10 @@
 package com.efedorchenko.timely.exception;
 
-import com.efedorchenko.timely.entity.EntityType;
-import com.efedorchenko.timely.entity.UserDataEntity;
-import com.efedorchenko.timely.model.data.UserDataModifyDto;
-import com.efedorchenko.timely.model.data.UserDataType;
-import com.efedorchenko.timely.repository.UserDataRepository;
+import com.efedorchenko.timely.data.entity.EntityType;
+import com.efedorchenko.timely.data.entity.UserDataEntity;
+import com.efedorchenko.timely.data.model.UserDataModifyDto;
+import com.efedorchenko.timely.data.model.UserDataType;
+import com.efedorchenko.timely.data.repository.UserDataRepository;
 import com.efedorchenko.timely.security.model.RoleType;
 import org.apache.commons.lang3.function.TriFunction;
 

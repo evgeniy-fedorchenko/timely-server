@@ -1,7 +1,7 @@
 package com.efedorchenko.timely.configuration;
 
-import com.efedorchenko.timely.entity.Role;
-import com.efedorchenko.timely.repository.RoleRepository;
+import com.efedorchenko.timely.data.entity.Role;
+import com.efedorchenko.timely.data.repository.RoleRepository;
 import com.efedorchenko.timely.security.model.RoleType;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;

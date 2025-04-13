@@ -2,12 +2,12 @@ package com.efedorchenko.timely.configuration;
 
 import com.efedorchenko.timely.configuration.properties.LimitConfig;
 import com.efedorchenko.timely.configuration.properties.RateLimiterProperties;
-import com.efedorchenko.timely.limiter.RateLimiter;
-import com.efedorchenko.timely.limiter.RateLimiterEnabledOnCondition;
-import com.efedorchenko.timely.limiter.RateLimiterInvoker;
-import com.efedorchenko.timely.limiter.RateLimitingStrategy;
-import com.efedorchenko.timely.limiter.bucket.LimitType;
-import com.efedorchenko.timely.limiter.bucket.TokenBucketRateLimiter;
+import com.efedorchenko.timely.middleware.limiter.RateLimiter;
+import com.efedorchenko.timely.middleware.limiter.RateLimiterEnabledOnCondition;
+import com.efedorchenko.timely.middleware.limiter.RateLimiterInvoker;
+import com.efedorchenko.timely.middleware.limiter.RateLimitingStrategy;
+import com.efedorchenko.timely.middleware.limiter.bucket.LimitType;
+import com.efedorchenko.timely.middleware.limiter.bucket.TokenBucketRateLimiter;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.AllArgsConstructor;

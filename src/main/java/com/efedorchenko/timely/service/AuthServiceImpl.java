@@ -1,16 +1,16 @@
 package com.efedorchenko.timely.service;
 
-import com.efedorchenko.timely.entity.Space;
-import com.efedorchenko.timely.entity.UserDetailsImpl;
-import com.efedorchenko.timely.entity.UserEntity;
-import com.efedorchenko.timely.logging.Log;
-import com.efedorchenko.timely.mapper.UserMapper;
-import com.efedorchenko.timely.model.SpaceKeys;
-import com.efedorchenko.timely.model.auth.AuthErrorCode;
-import com.efedorchenko.timely.model.auth.AuthResponse;
-import com.efedorchenko.timely.model.auth.RegisterRequest;
-import com.efedorchenko.timely.repository.UserDetailsRepository;
-import com.efedorchenko.timely.repository.UserEntityRepository;
+import com.efedorchenko.timely.data.entity.Space;
+import com.efedorchenko.timely.data.entity.UserDetailsImpl;
+import com.efedorchenko.timely.data.entity.UserEntity;
+import com.efedorchenko.timely.data.mapper.UserMapper;
+import com.efedorchenko.timely.data.model.SpaceKeys;
+import com.efedorchenko.timely.data.model.auth.AuthErrorCode;
+import com.efedorchenko.timely.data.model.auth.AuthResponse;
+import com.efedorchenko.timely.data.model.auth.RegisterRequest;
+import com.efedorchenko.timely.data.repository.UserDetailsRepository;
+import com.efedorchenko.timely.data.repository.UserEntityRepository;
+import com.efedorchenko.timely.middleware.logging.Log;
 import com.efedorchenko.timely.security.JwtUtil;
 import com.efedorchenko.timely.security.model.AuthData;
 import com.efedorchenko.timely.security.model.JwtTokenData;
