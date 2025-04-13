@@ -1,18 +1,29 @@
-package com.efedorchenko.timely.limiter.atomic;
+package com.efedorchenko.timely.limiter.bucket;
 
-import com.efedorchenko.timely.limiter.TokenBucket;
+import com.efedorchenko.timely.limiter.RateLimitingStrategy;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AtomicTokenBucket implements TokenBucket {
+/**
+ * Стратегия лимитирования запросов {@code TokenBucket}.
+ * <p>
+ * Стратегия поддерживает кратковременные скачки числа запросов, в пределах установленной {@code capacity}
+ * Каждому клиенту выделяется {@code N} токенов в единицу времени, но при накоплении
+ * они не превышают {@code capacity}. Потребление токенов происходит атомарно с использованием
+ * стратегии {@code CAS} атомарных операций без синхронизированных блоков.
+ * При инициализации бакет создается с количеством токенов, равным {@code capacity}
+ */
+@Slf4j
+public class TokenBucket implements RateLimitingStrategy {
 
     private final int capacity;
     private final long refillIntervalMillis;
     private final AtomicLong lastRefillTimestamp;
     private final AtomicInteger tokens;
 
-    public AtomicTokenBucket(int capacity, long refillIntervalMillis) {
+    public TokenBucket(int capacity, long refillIntervalMillis) {
         this.capacity = capacity;
         this.refillIntervalMillis = refillIntervalMillis;
         this.lastRefillTimestamp = new AtomicLong(System.currentTimeMillis());
@@ -25,22 +36,14 @@ public class AtomicTokenBucket implements TokenBucket {
         int currentTokens;
         do {
             currentTokens = tokens.get();
+            log.trace("Pre-consume, count: {}", currentTokens);
             if (currentTokens <= 0) {
+                log.trace("consume filed. There are no tokens");
                 return false;
             }
         } while (!tokens.compareAndSet(currentTokens, currentTokens - 1));
+        log.trace("consumed 1 token, remaining tokens: {}", tokens.get());
         return true;
-    }
-
-    @Override
-    public int getAvailableTokens() {
-        refill();
-        return tokens.get();
-    }
-
-    @Override
-    public int getCapacity() {
-        return capacity;
     }
 
     private void refill() {

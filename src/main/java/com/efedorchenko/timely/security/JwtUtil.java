@@ -6,8 +6,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderValues;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -41,13 +39,6 @@ public class JwtUtil {
 
     public static Optional<String> extractJwt(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
-                .filter(authHeader -> authHeader.startsWith(BEARER_PREFIX))
-                .map(rawAuthorizationHeaderValue -> rawAuthorizationHeaderValue.substring(BEARER_PREFIX.length()));
-    }
-
-    public static Optional<String> extractJwt(HttpServerExchange exchange) {
-        return Optional.ofNullable(exchange.getRequestHeaders().get(HttpHeaders.AUTHORIZATION))
-                .map(HeaderValues::getFirst)
                 .filter(authHeader -> authHeader.startsWith(BEARER_PREFIX))
                 .map(rawAuthorizationHeaderValue -> rawAuthorizationHeaderValue.substring(BEARER_PREFIX.length()));
     }

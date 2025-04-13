@@ -1,8 +1,8 @@
 package com.efedorchenko.timely.limiter;
 
-import io.undertow.server.HttpServerExchange;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface RateLimiter {
 
-    boolean isRateCheckPassed(HttpServerExchange exchange);
+    boolean isAllowed(HttpServletRequest request);
 }
